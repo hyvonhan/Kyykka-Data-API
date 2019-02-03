@@ -1,8 +1,8 @@
 # PWP SPRING 2019
-# PROJECT NAME
+# Kyykka-Data-API
 # Group information
-* Student 1. Name and email
-* Student 2. Name and email
-* Student 3. Name and email
+* Student 1. Hannu Hyvönen  hannu.hyvonen@student.oulu.fi
+* Student 2. Oona Kivelä    oona.kivela@student.oulu.fi
+* Student 3. Satu Hyle      satu.hyle@student.oulu.fi
 
 
