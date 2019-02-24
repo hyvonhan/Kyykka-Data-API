@@ -17,13 +17,22 @@ where ```/path/to/the/virtualenv``` is the path to your file you just created. Y
 ```
 "file name"\Scripts\activate.bat
 ```
-replace ```"file name"``` with the file name you used to create the environment. This will activate the virtual environment. Next, type in the command prompt:
+replace ```"file name"``` with the file name you used to create the virtualenv. This will activate the virtual environment. Next, type in the command prompt:
 ```
 pip install -r requirements.txt
 ```
 This will install all the required libraries in your virtual environment in order to use this code. Libraries inside the requirements.txt can be found below
 
 ### requirements.txt details
+
+* flask
+* flask-sqlalchemy
+* pysqlite3
+* ipython
+* json
+* pytest
+
+### About the libraries
 
 External Python libraries used in this project are json, datetime, flask, flask_sqlalchemy, sqlalchemy.exc, sqlalchemy.engine and sqlalchemy. The json library needed to be imported in order to use json-files. The datetime library is going to be used to fetch a date of the game. The flask library is used to let it use request calls from json and abort a mission when an exception is noticed. Flask is used as a database framework. From flask_sqlalchemy a SQLAlchemy is imported in order to build ORM. To be noticed with IntegrityError it needed to be imported from sqlalchemy.exc. To enable a foreign key support Engine needs to be imported from sqlalchemy.engine and event from sqlalchemy.
 
@@ -36,33 +45,35 @@ In order to test the code, the database needs to be populated. This can be done 
 Now that ipython is active, you can start population the database. At minimum you will need to insert two different matches and add throws in each of them. Every match overall includes 64 throws, but for testing purposes 3 throws per match is enough. Lets start by adding the two matches in our database.
 ```
 [1]from app import db
-[2]db.create_all() 
+[2]db.create_all()
+[3]from app import Match, Throw
 ```
-These two commands will create two tables: MATCH and THROW. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
+These two commands will create two tables: MATCH and THROW. The db.file will be created in the same file where the actual code is in your computer. This is an SQLite database with two empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
 ```
-[3]game1 = Match(team1="Bears", team2="Wolves") 
-[4]game2 = Match(team1="Beevers", team2="Hogs")
-[5]db.session.add(game1)
-[6]db.session.add(game2)
-[7]db.session.commit()
+[4]game1 = Match(team1="Bears", team2="Wolves") 
+[5]game2 = Match(team1="Beevers", team2="Hogs")
+[6]db.session.add(game1)
+[7]db.session.add(game2)
+[8]db.session.commit()
 ```
 To check your games, type ```Match.query.first()```. Next, we should add some throws for each of the games.
 ```
-[8]throw1 = Throw(player="Tom", points=2, match_id=1)
-[9]throw2 = Throw(player="Lea", points=-4, match_id=1)
-[10]throw3 = Throw(player="John", points=8, match_id=1)
-[11]throw65 = Throw(player="Mary", points=-6, match_id=2)
-[12]throw66 = Throw(player="Alex", points=2, match_id=2)
-[13]throw67 = Throw(player="Jean", points=0, match_id=2)
-[14]db.session.add(throw1)
-[15]db.session.add(throw2)
-[16]db.session.add(throw3)
-[17]db.session.add(throw65)
-[18]db.session.add(throw66)
-[19]db.session.add(throw67)
-[20]db.session.commit()
+[9]throw1 = Throw(player="Tom", points=2, match_id=1)
+[10]throw2 = Throw(player="Lea", points=-4, match_id=1)
+[11]throw3 = Throw(player="John", points=8, match_id=1)
+[12]throw65 = Throw(player="Mary", points=-6, match_id=2)
+[13]throw66 = Throw(player="Alex", points=2, match_id=2)
+[14]throw67 = Throw(player="Jean", points=0, match_id=2)
+[15]db.session.add(throw1)
+[16]db.session.add(throw2)
+[17]db.session.add(throw3)
+[18]db.session.add(throw65)
+[19]db.session.add(throw66)
+[20]db.session.add(throw67)
+[21]db.session.commit()
 ```
 Throw number 65 is the first throw of the second game. As mentioned before, each game has 64 throws. To link a certain throw to a game, you need to write a correct match_id. Here number 1 means it belongs to the first game and number 2 means it belongs to the second game. You are not able to add throws to a games that do not exist. To check your throws, type ```Throw.query.first()```
 
 # Instruction on how to run the tests of your database.
 
+Pytest can be used to test the database. It is included in the requirements.txt file, so it was already installed.
