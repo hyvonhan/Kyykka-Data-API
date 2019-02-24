@@ -35,21 +35,21 @@ class Throw(db.Model):
     
     current_match = db.relationship("Match", back_populates="throws")
 
-@app.route("/match/add/", methods=["POST"])
+@app.route("/match/add/", methods=["POST"])     #this function inserts a new match entry to the Match-table
 def add_match():
     # This branch happens when client submits the JSON document
     try:
-        game_id = int(request.json["id"]) #lukee Jsonista tuotteen
-        game = Match.query.filter_by(id=game_id).first() #luo listan
-        if game:
+        game_id = int(request.json["id"])       #reads the id from Json
+        game = Match.query.filter_by(id=game_id).first()        #takes all the data from Match-table and filters it by game_id and orders it descending from the first
+        if game:        #if the match is already in the table abort the session
             abort(409)
-        if not game:
-            team1 = str(request.json["team1"])
+        if not game:        #if there is no existing match, execute this
+            team1 = str(request.json["team1"])      #read all the needed data from Json
             team2 = str(request.json["team2"])
             date = str(request.json["date"])
             team1_points = int(request.json["team1_points"])
             team2_points = int(request.json["team2_points"])
-            new_game = Match(
+            new_game = Match(       #make entry for new match insert to the table
                 id=game_id,
                 team1=team1,
                 team2=team2,
@@ -57,8 +57,8 @@ def add_match():
                 team1_points=team1_points,
                 team2_points=team2_points
             )
-            db.session.add(new_game) #komento: tullaan lisaamaan tama tuote
-            db.session.commit() #lisataan tuote tietokantaan
+            db.session.add(new_game)        #this will be commited to the database
+            db.session.commit()     #make the commit to the database
             return "succesful", 201
         else:
              abort(404)
@@ -67,26 +67,26 @@ def add_match():
     except TypeError: 
         abort(415)
 
-@app.route("/throw/add/", methods=["POST"])
+@app.route("/throw/add/", methods=["POST"])     #this function inserts a new throw entry to the Match-table
 def add_throw():
     # This branch happens when client submits the JSON document
     try:
-        throw_id = int(request.json["id"])
-        throw = Throw.query.filter_by(id=throw_id).first()
-        if throw:
+        throw_id = int(request.json["id"])      #reads data from Json
+        throw = Throw.query.filter_by(id=throw_id).first()      #takes all the data from Throw-table and filters it by throw_id and orders it descending from the first
+        if throw:       #if the throw is already in the table abort the session
             abort(409)
-        if not throw:
-            player = str(request.json["player"])
+        if not throw:       #if there is no existing throw, execute this
+            player = str(request.json["player"])        #read all the needed data from Json
             points = int(request.json["points"])
             match_id = int(request.json["match_id"])
-            new_throw = Throw(
+            new_throw = Throw(      #make entry for new throw insert to the table
                 id=throw_id,
                 player=player,
                 points=points,
                 match_id=match_id,
             )
-            db.session.add(new_throw)
-            db.session.commit()
+            db.session.add(new_throw)       #this will be commited to the database
+            db.session.commit()     #make the commit to the database
             return "succesful", 201
         else:
              abort(404)
@@ -96,8 +96,8 @@ def add_throw():
         abort(415)            
     
     
-@app.route("/match/")
-def get_throws():
+@app.route("/match/")       #This function retrieves all the player data from the Throw table
+def get_throws():       #It takes all the data from Throw table and prints them in to a key/value pairs for the user
     response_data = []
     throws = Throw.query.all()
     for throw in throws:
