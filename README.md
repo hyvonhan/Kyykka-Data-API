@@ -7,13 +7,13 @@
 
 ## Getting Started
 
-It is recommended to use virtual environment to use and test the code. You should use Python 3.3 or newer for following instructions. Use use pip to install your virtual environment. Instructions to pip can be found from https://pip.pypa.io/en/stable/installing/.
+It is recommended to use virtual environment to use and test the code. You should use Python 3.3 or newer for following instructions. Use pip to install your virtual environment. Instructions to pip can be found from https://pip.pypa.io/en/stable/installing/.
 
-In order to create your virtual environment, first create a file in your computer where you want to create the virtual environment. Next, type in your command prompt,
+In order to create your virtual environment, first create a folder in your computer where you want to create the virtual environment. Next, type in your command prompt,
 ```
 python -m venv /path/to/the/virtualenv
 ```
-where ```/path/to/the/virtualenv``` is the path to your file you just created. You will see the name of your virtualenv in parenthesis in front of your command prompt. Next, you need to download requirements.txt file, which can be found inside the source_code file. Place it in the file of your virtual environment. Type in your command prompt:
+where ```/path/to/the/virtualenv``` is the path to your folder you just created. You will see the name of your virtualenv in parenthesis in front of your command prompt. Next, you need to download requirements.txt file, which can be found inside the source_code file. Place it in the folder of your virtual environment. Type in your command prompt:
 ```
 "file name"\Scripts\activate.bat
 ```
@@ -42,13 +42,13 @@ In order to test the code, the database needs to be populated. This can be done 
 
 ### Instructions on how to populate the database.
 
-Now that ipython is active, you can start population the database. At minimum you will need to insert two different matches and add throws in each of them. Every match overall includes 64 throws, but for testing purposes 3 throws per match is enough. Lets start by adding the two matches in our database.
+Now that ipython is active, you can start populating the database. At minimum you will need to insert two different matches and add throws in each of them. Every match overall includes 64 throws, but for testing purposes 3 throws per match is enough. Lets start by adding the two matches in our database.
 ```
 [1]from app import db
 [2]db.create_all()
 [3]from app import Match, Throw
 ```
-These two commands will create two tables: MATCH and THROW. The db.file will be created in the same file where the actual code is in your computer. This is an SQLite database with two empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
+These two commands will create two tables: MATCH and THROW. The db.file will be created in the same folder where the actual code is in your computer. This is an SQLite database with two empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
 ```
 [4]game1 = Match(team1="Bears", team2="Wolves") 
 [5]game2 = Match(team1="Beevers", team2="Hogs")
