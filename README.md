@@ -76,4 +76,5 @@ Throw number 65 is the first throw of the second game. As mentioned before, each
 
 # Instruction on how to run the tests of your database.
 
-Pytest can be used to test the database. It is included in the requirements.txt file, so it was already installed.
+Pytest can be used to test the database. It is included in the requirements.txt file, so it was already installed. To test the database copy the app.py from source_code folder into the test folder. Then go to command prompt and locate the test folder and type ```pytest```
+Details about test can be found at the comments inside db_test.py
