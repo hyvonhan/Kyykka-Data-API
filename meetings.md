@@ -5,7 +5,8 @@
 * **ASSISTANTS: Ivan Sanchez Milara**
 * **GRADE:** *To be filled by course staff*
 
-### Minutes
+### 20 Minutes 
+*Summary of what was discussed during the meeting*
 
 At first we were asked to remove the extra stuff from the GitHub code page. These were added by accident while creating a local repository in order to work from home. After this we disscussed about the task included in the deadline 1 (RESTful API description). Overall, our thinking was still too broad and we were asked to narrow it down even more. At this point we only have to worry about the API itself, no about the client or the server. This means we need to focus more on the aspect of how the API will be used. We were also asked to think about why, for example, people from our university would want to use it.
 
@@ -14,13 +15,19 @@ In the overview part of the deadline 1, we should make it more selling. This is 
 ### Action points
 *List here the actions points discussed with assistants*
 
+* remove extra stuff from the GitHub code page
+* write about why people from uni would want to use the app (overview)
+* advertise your API more (overview)
+* focus more on the how the API is used and make things more simple (main concepts)
+* be more specific on which other APIs could be used with our API (API uses)
+* find another API which includes same kind of functionality than our API (related work)
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 2.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE:28.2.2019**
+* **ASSISTANTS: Ivan Sanchez Milara**
 * **GRADE:** *To be filled by course staff*
 
 ### Minutes
