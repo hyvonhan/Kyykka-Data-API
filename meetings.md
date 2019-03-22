@@ -15,7 +15,7 @@ In the overview part of the deadline 1, we should make it more selling. This is 
 ### Action points
 *List here the actions points discussed with assistants*
 
-* remove extra stuff from the GitHub code page
+* remove extra stuff from the GitHub code page DONE
 * write about why people from uni would want to use the app (overview)
 * advertise your API more (overview)
 * focus more on the how the API is used and make things more simple (main concepts)
@@ -26,16 +26,23 @@ In the overview part of the deadline 1, we should make it more selling. This is 
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 2.
-* **DATE:28.2.2019**
+* **DATE: 28.2.2019**
 * **ASSISTANTS: Ivan Sanchez Milara**
 * **GRADE:** *To be filled by course staff*
 
-### Minutes
+### 30 Minutes
 *Summary of what was discussed during the meeting*
+
+At first, our assistant checked our readme file and concluded it was okay and even more detailed than was required. After this our models were checked. Our models were okay, but we were missing one resource from our API. Ivan suggested we should add a new resource: player. Player model should have a relationship to the throw model. In the player model, name will be our foreign key. Next, we discussed about the team_points attribute. In this, nullable should be changed to True, so we can create a new match without adding the final results. This could be done in the client side, maybe? Ivan promised to try to find us a solutions for this. We should also put our model codes into different files to follow the protocols. In the future we should make sure our DELETE and UPDATE are working. For example, when we remove a match from the database, all the throws related to this deleted match will be also deleted.
 
 ### Action points
 *List here the actions points discussed with assistants*
 
+* update player model in Table 3 (database design)
+* add fifth resource: player (database design)
+* in code, put models in different file (database implementation)
+* solve how to restrick team_points between -80 and 80 (database implementation)
+* in the future, implement DELETE and PUT
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
