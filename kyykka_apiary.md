@@ -107,14 +107,12 @@ The following [IANA RFC5988](http://www.iana.org/assignments/link-relations/link
 
 ## Player profile
 
-Profile definition for all album related resources.
+Profile definition for all players.
 
 ### Link Relations
 
 This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the mumeta namespace are used:
 
- * [add-throw](reference/link-relations/add-throw)
- * [add-match](reference/link-relations/add-mathc)
  * [matches-all](reference/link-relations/matches-all)
  * [throws-by](reference/link-relations/throws-by)
  * [players-all](reference/link-relations/players-all)
@@ -152,6 +150,367 @@ Profile definition for all errors returned by the API. See [Mason error control]
 # Group Throw
 
 # Group Player
+
+All of these resources use the [Player Profile](reference/profiles/player-profile). In error scenarios [Error Profile](reference/profiles/error-profile) is used.
+
+## Player Collection [/api/players/]
+
+A list of all players known to the API. 
+
+### List all players [GET]
+
+Get a list of all players known to the API.
+
++ Relation: players-all
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+    
+    + Body
+
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/kyykkadataapi/link-relations#"
+                    }
+                },
+                "@controls": {
+                    "self": {
+                        "href": "/api/players/"
+                    },
+                    "mumeta:players-all": {
+                        "href": "/api/players/",
+                        "title": "All players"
+                    },
+                    "mumeta:add-player": {
+                        "href": "/api/artists/",
+                        "title": "Add a new player",
+                        "encoding": "json",
+                        "method": "POST",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "Name of the player",
+                                    "type": "string"
+                                },
+                                "team": {
+                                    "description": "Team of the player",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["name", "team"]
+                        }
+                    }                    
+                },
+                "items": [
+                    {
+                        "name": "pekka",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/players/pekka/"
+                            }, 
+                            "profile": {
+                                "href": "/profiles/player/"
+                            }
+                        }
+                    }
+                ]
+            }
+            
+### Add a new player [POST]
+
+Adds a new player.
+
++ Relation: add-player
++ Request (application/json)
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+            
+    + Body
+            
+            {
+                "name": "pekka",
+                "team": "kiskojat"
+            }
+
++ Response 201
+    
+    + Headers
+        
+            Location: /api/players/pekka/
+            
+    + Body
+    
+            {}
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema.
+
+    + Body
+    
+            {
+                "resource_url": "/api/players/",
+                "@error": {
+                    "@message": "Invalid JSON document",
+                    "@messages": [                    
+                        "'name' is a required property
+                        
+                        Failed validating 'required' in schema:
+                        {'properties': {'name': {'description': \"Name of the player\",
+                        'type': 'string'},
+                        'team': {'description': \"Team of the player\",
+                        'type': 'string'}},
+                        'required': ['name'],
+                        'type': 'object'}
+                        
+                        On instance:
+                        {'name': 'pekka'}"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/players/pekka/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+
+## Player [/api/players/{player}/]
+
+This resource represents a single player.
+
++ Parameters
+
+    + player: pekka (string) - player's name (name)
+            
+
+### Player information [GET]
+
+Get the player's representation.
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
++ Response 200 (application/vnd.mason+json)
+ 
+    + Body
+    
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/musicmeta/link-relations#"
+                    }
+                },
+                "name": "pekka",
+                "team": "kiskojat",
+                "@controls": {
+                    "self": {
+                        "href": "/api/players/{player}/"
+                    },
+                    "mumeta:throws-by": {
+                        "href": "/api/players/pekka/throws/",
+                        "title": "Throws by player"
+                    },
+                    "collection": {
+                        "href": "/api/players/",
+                        "title": "All players"
+                    },    
+                    "edit": {
+                        "href": "/api/players/pekka/",
+                        "title": "Edit this player",
+                        "encoding": "json",
+                        "method": "PUT",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "description": "Name of the player",
+                                    "type": "string"
+                                },
+                                "team": {
+                                    "description": "Team of the player",
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["name", "team"]
+                        }
+                    },
+                    "mumeta:delete": {
+                        "href": "/api/players/pekka/",
+                        "title": "Delete this player",
+                        "method": "DELETE"
+                    }
+                },
+                "items": [
+                    {
+                        "name": "pekka",
+                        "@controls": {
+                            "self": {
+                                "href": "/api/players/pekka/"
+                            }, 
+                            "profile": {
+                                "href": "/profiles/player/"
+                            }
+                        }
+                    }
+                ]
+            }
+            
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to modify a player that doesn't exist.
+
+    + Body
+    
+            {
+            }
+            
+### Edit player information [PUT]
+
+Replace the player's representation with a new one. Missing optinal fields will be set to null. Must validate against the artist schema. 
+
++ Relation: edit
++ Request (application/json)
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "name": "pekka",
+                "team": "kiskojat"
+            }
+
++ Response 204
+
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema..
+
+    + Body
+    
+            {
+                "resource_url": "/api/players/pekka/",
+                "@error": {
+                    "@message": "Invalid format",
+                    "@messages": [
+                        "Something went wrong"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to edit a player that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/players/pakke/",
+                "@error": {
+                    "@message": "Player not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+            
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/players/pekka/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+            
+### Delete player [DELETE]
+
+Deletes the player.
+
++ Relation: delete
++ Request
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
++ Response 204
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to delete a player that doesn't exist (due to non-existent player). 
+
+    + Body
+    
+            {
+                "resource_url": "/api/players/pekka/",
+                "@error": {
+                    "@message": "Player not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
 
 
 
