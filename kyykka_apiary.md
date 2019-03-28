@@ -537,6 +537,316 @@ Deletes the match.
 
 # Group Throw
 
+All of these resources use the [Throw Profile](reference/profiles/throw-profile). In error scenarios [Error Profile](reference/profiles/error-profile) is used.
+
+## Throws in match [/matches/{match_id}/throws/]
+
+This is an throw collection by given match using the match id unique number.
+
++ Parameters
+
+    + match_id (integer) - matches unique number
+    
+### List throws by match [GET]
+
+Get a list of throws by a match.
+
++ Relation: throws-by
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+            
++ Response 200 (application/vnd.mason+json)
+
+    + Body
+    
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/kyykka_apiary/link-relations#"
+                    }
+                }, 
+                "@controls": {
+                    "self": {
+                        "href": "/matches/1/throws/"
+                    },
+                    "mumeta:throws-all": {
+                        "href": "/api/throws/",
+                        "title": "All throws"
+                    },                    
+                    "mumeta:matches-all": {
+                        "href": "/matches/",
+                        "title": "All matches",
+                        "isHrefTemplate": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "sortby": {
+                                    "description": "Field to use for sorting",
+                                    "type": "integer",
+                                    "default": "match_id",
+                                }
+                            },
+                            "required": []
+                        }
+                    },                    
+                    "author": {
+                        "href": "/matches/1/throws/"
+                    },
+                "items": [
+                    {
+                        "player": "Keijo",
+                        "current_match": 1,
+                        "@controls": {
+                            "self": {
+                                "href": "/matches/{match_id}/throws/"
+                            },
+                            "profile": {
+                                "href": "/profiles/player/"
+                            }
+                        }
+                    }
+                ]        
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to retrieve list of throws for an match that doesn't exist.
+
+    + Body
+    
+            
+            {
+                "resource_url": "/matches/0/throws/666",
+                "@error": {
+                    "@message": "Match not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
+## Throw [/matches/{match_id}/throws/{throw_id}/]
+
+This resource represents a single throw, as identified by the matche`s unique id.
+
++ Parameters
+
+    + id (integer) - throws`s unique id (id)
+
+### Throw information [GET]
+
+Get the throw representation.
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
++ Response 200
+
+    + Body
+    
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/kyykka_apiary/link-relations#"
+                    }
+                },
+                "player": "Kekkonen",
+                "points": 20,
+                "match_id": 1,
+                "@controls": {
+                    "author": {
+                        "href": "api/matches/1/throws/3/"
+                    },
+                    "mumeta:throws-by": {
+                        "href": "/api/matches/3/"
+                    },
+                    "self": {
+                        "href": "/api/matches/3/"
+                    },
+                    "profile": {
+                        "href": "/profiles/throw/"
+                    },
+                    "collection": {
+                        "href": "/api/throws/"
+                    },
+                    "mumeta:throws-all": {
+                        "href": "/api/throws/",
+                        "title": "All throws"
+                    },
+                    
+                    "edit": {
+                        "href": "api/matches/1/throws/3/",
+                        "title": "Edit this match",
+                        "encoding": "json",
+                        "method": "PUT",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Throws`s id",
+                                    "type": "integer"
+                                },
+                                "player": {
+                                    "description": "Name of the player",
+                                    "type": "string",
+                                },
+                                "points": {
+                                    "description": "Amount of points for player",
+                                    "type": "integer"
+                                },
+                                "match_id": {
+                                    "description": "Identifying number for the match",
+                                    "type": "integer",
+                                },
+                            },
+                            "required": ["player", "points", "match_id"]
+                        }
+                    },
+                    "mumeta:delete": {
+                        "href": "api/matches/1/throws/3/",
+                        "title": "Delete this throw",
+                        "method": "DELETE"
+                    }
+                },
+                "items": [
+                    {
+                "player": "Kekkonen",
+                "points": 20,
+                "match_id": 1,
+                    "@controls": {
+                        "self": {
+                            "href": "api/matches/1/throws/3/"
+                            }
+                        }
+                    }
+                ]
+            }
+            
+            
+### Edit Throw [PUT]
+
+Replace the throw's representation with a new one. Missing optional fields will be set to null. 
+
++ Relation: edit
++ Request (application/json)
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "player": "Geggonen",
+                "points": 30,
+                "match_id": 12,
+            }
+        
++ Response 204
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent player points.
+
+    + Body
+    
+            {
+                "resource_url": "/api/matches/throws/",
+                "@error": {
+                    "@message": "Invalid points format",
+                    "@messages": [
+                        "Points must be integers"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to edit a throw that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/matches/throws/",
+                "@error": {
+                    "@message": "Throw not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+        
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/matches/throws/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+
+### Delete Throw [DELETE]
+
+Deletes the throw.
+
++ Relation: delete
++ Request
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
++ Response 204
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to delete a throw that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/matches/throws",
+                "@error": {
+                    "@message": "Throw not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
 # Group Player
 
 All of these resources use the [Player Profile](reference/profiles/player-profile). In error scenarios [Error Profile](reference/profiles/error-profile) is used.
