@@ -147,6 +147,394 @@ Profile definition for all errors returned by the API. See [Mason error control]
     
 # Group Match
 
+All of these resources use the [Match Profile](reference/profiles/match-profile). In error scenarios [Error Profile](reference/profiles/error-profile) is used.
+
+## Match Collection [/api/matches/?sortby={field}]
+
+A list of all matches known to the API. This collection can be sorted using the sortby query parameter. Matches can be directly added to this collection, it supports.
+
++ Parameters
+
+    + field (string, optional) - Field to use for sorting
+    
+        + Default: `id`
+        + Members
+            
+            + `id`
+            + `date`
+
+### List all matches [GET]
+
+Get a list of all matches known to the API.
+
++ Relation: matches-all
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+
++ Response 200 (application/vnd.mason+json)
+    
+    + Body
+
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/kyykka_apiary/link-relations#"
+                    }
+                },
+                "@controls": {
+                    "self": {
+                        "href": "/api/matches/"
+                    },
+                    "mumeta:throws-by": {
+                        "href": "/api/matches/{id}/throws",
+                        "title": "All throws"
+                    },
+                    "mumeta:add-match": {
+                        "href": "/api/matches/",
+                        "title": "Add a match to a match collection",
+                        "encoding": "json",
+                        "method": "POST",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Match information",
+                                    "type": "string"
+                                },
+                                "team1": {
+                                    "description": "Name of the first team",
+                                    "type": "string"
+                                },
+                                "team2": {
+                                    "description": "Name of the second team",
+                                    "type": "string"
+                                },
+                                "date": {
+                                    "description": "Date when the match was played",
+                                    "type": "string"
+                                },
+                                "team1_points": {
+                                    "description": "Final points of the first team",
+                                    "type": "integer",
+                                    "default": null
+                                },
+                                "team2_points": {
+                                    "description": "Final points of the second team",
+                                    "type": "integer",
+                                    "default": null
+                                },                                
+                            },
+                            "required": ["team1", "team2", "date"]
+                        }
+                    },
+                },
+                "items": [
+                    {
+                        "team1": "HubbaBubba",
+                        "team2": "JeeJee",
+                        "date": "24.6.2018",
+                        "team1_points": null,
+                        "team2_points": null,
+                        "@controls": {
+                            "self": {
+                                "href": "/api/matches/1/"
+                            }, 
+                            "profile": {
+                                "href": "/profiles/matches/"
+                            }
+                        },
+                    }, 
+                    {
+                        "team1": "Palikat",
+                        "team2": "Laatikot",
+                        "date": "24.6.2018,
+                        "team1_points": null,
+                        "team2_points": null,
+                        "@controls": {
+                            "self": {
+                                "href": "/api/matches/2/"
+                            },
+                            "profile": {
+                                "href": "/profiles/matches/"
+                            }
+                        }
+                    }
+                ]
+            }
+            
+### Add match [POST]
+
++ Relation: add-match
++ Request (application/json)
+
+    + Headers
+
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "team1": "Omenat",
+                "team2": "Banaanit",
+                "date": "5.5.2018",
+                "team1_points": null,
+                "team2_points": null,
+                "@controls": {
+                    "self": {
+                        "href": "/api/matches/3/"
+                    }
+                }
+            }
+
++ Response 201
+
+    + Headers
+    
+            Location: /api/matches/3/
+
++ Response 400 (application/vnd.mason+json)
+
+        The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent release date.
+
++ Response 415 (application/vnd.mason+json)
+
+        The client did not use the proper content type, or the request body was not valid JSON.
+
+## Match [/api/matches/{id}/]
+
+This resource represents a single match, as identified by the matche`s unique id. It includes the list of tracks on the album in addition to the album's own metadata. Individual tracks are usually only visited when modifying their data. They use the [Track Profile](/reference/profiles/track-profile).
+
++ Parameters
+
+    + id (integer) - matche`s unique id (id)
+
+### Match information [GET]
+
+Get the match representation.
+
++ Relation: self
++ Request
+
+    + Headers
+    
+            Accept: application/vnd.mason+json
+        
++ Response 200
+
+    + Body
+    
+            {
+                "@namespaces": {
+                    "mumeta": {
+                        "name": "/kyykka_apiary/link-relations#"
+                    }
+                },
+                "team1": "Omenat",
+                "team2": "Banaanit",
+                "date": "5.5.2018",
+                "team1_points": null,
+                "team2_points": null,
+                "@controls": {
+                    "author": {
+                        "href": "/api/matches/3/"
+                    },
+                    "mumeta:matches-by": {
+                        "href": "/api/matches/3/"
+                    },
+                    "self": {
+                        "href": "/api/matches/3/"
+                    },
+                    "profile": {
+                        "href": "/profiles/match/"
+                    },
+                    "collection": {
+                        "href": "/api/matches/"
+                    },
+                    "mumeta:matches-all": {
+                        "href": "/api/matches/",
+                        "title": "All matches"
+                    },
+                    
+                    "edit": {
+                        "href": "/api/matches/3/",
+                        "title": "Edit this match",
+                        "encoding": "json",
+                        "method": "PUT",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "title": {
+                                    "description": "Match`s id",
+                                    "type": "string"
+                                },
+                                "team1": {
+                                    "description": "Name of the first team",
+                                    "type": "string",
+                                },
+                                "team2": {
+                                    "description": "Name of the second team",
+                                    "type": "string"
+                                },
+                                "date": {
+                                    "description": "Date when the match was played",
+                                    "type": "string",
+                                },
+                                "team1_points": {
+                                    "description": "Final points of the first team",
+                                    "type": "integer",
+                                    "default": null
+                                },
+                                "team2_points": {
+                                    "description": "Final points of the second team",
+                                    "type": "integer",
+                                    "default": null
+                                }, 
+                            },
+                            "required": ["team1", "team2", "date"]
+                        }
+                    },
+                    "mumeta:delete": {
+                        "href": "/api/matches/3/",
+                        "title": "Delete this match",
+                        "method": "DELETE"
+                    }
+                },
+                "items": [
+                    {
+                "team1": "Omenat",
+                "team2": "Banaanit",
+                "date": "5.5.2018",
+                "team1_points": null,
+                "team2_points": null,
+                    "@controls": {
+                        "self": {
+                            "href": "/api/matches/3/"
+                            }
+                        }
+                    }
+                ]
+            }
+            
+            
+### Edit Match [PUT]
+
+Replace the match's representation with a new one. Missing optional fields will be set to null. 
+
++ Relation: edit
++ Request (application/json)
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
+    + Body
+    
+            {
+                "team1": "Omenat",
+                "team2": "Banaanit",
+                "date": "5.5.2018",
+                "team1_points": 10,
+                "team2_points": 20
+            }
+        
++ Response 204
+
++ Response 400 (application/vnd.mason+json)
+
+    The client is trying to send a JSON document that doesn't validate against the schema, or has non-existent team points.
+
+    + Body
+    
+            {
+                "resource_url": "/api/match/",
+                "@error": {
+                    "@message": "Invalid points format",
+                    "@messages": [
+                        "Points must be integers"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to edit a match that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/matches/",
+                "@error": {
+                    "@message": "Match not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+        
++ Response 415 (application/vnd.mason+json)
+
+    The client sent a request with the wrong content type or the request body was not valid JSON.
+
+    + Body
+        
+            {
+                "resource_url": "/api/matches/",
+                "@error": {
+                    "@message": "Unsupported media type",
+                    "@messages": [
+                        "Use JSON"
+                    ]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error-profile/"
+                    }
+                }
+            }
+
+### Delete Match [DELETE]
+
+Deletes the match.
+
++ Relation: delete
++ Request
+
+    + Headers
+        
+            Accept: application/vnd.mason+json
+        
++ Response 204
+
++ Response 404 (application/vnd.mason+json)
+
+    The client is trying to delete a match that doesn't exist. 
+
+    + Body
+    
+            {
+                "resource_url": "/api/matches/",
+                "@error": {
+                    "@message": "Match not found",
+                    "@messages": [null]
+                },
+                "@controls": {
+                    "profile": {
+                        "href": "/profiles/error/"
+                    }
+                }
+            }
+
 # Group Throw
 
 # Group Player
