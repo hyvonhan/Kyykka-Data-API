@@ -48,16 +48,29 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 3.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 29.3.2019**
+* **ASSISTANTS: Mika Oja**
 * **GRADE:** *To be filled by course staff*
 
-### Minutes
+### 30 Minutes
 *Summary of what was discussed during the meeting*
 
 ### Action points
 *List here the actions points discussed with assistants*
 
+* Fix the relations diagram with following:
+    * upper categories need to be linked. Rigth now matches/match is isolated resource
+    * add collection arrow between matches/match
+    * remove the link between player/throws and replace it with: throws are a list under the player resource
+    * list of throws need to be added to Url or request body
+* REST conformation task
+    * present all the methods, some are missing
+    * MIME type is hypermedia + JSON, fix this
+    * name your hypermedia type
+    * connectedness part needs improvements, it is lacking
+* Apiary code
+    * throws-by link relation is wrong in matches
+    * invent our own namespace, replace mumeta with kyykka or something  
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
