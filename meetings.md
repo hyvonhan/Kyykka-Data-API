@@ -18,7 +18,7 @@ In the overview part of the deadline 1, we should make it more selling. This is 
 * remove extra stuff from the GitHub code page DONE
 * write about why people from uni would want to use the app (overview) DONE
 * advertise your API more (overview) DONE
-* focus more on the how the API is used and make things more simple (main concepts)
+* focus more on the how the API is used and make things more simple (main concepts) DONE
 * be more specific on which other APIs could be used with our API (API uses)
 * find another API which includes same kind of functionality than our API (related work)
 
