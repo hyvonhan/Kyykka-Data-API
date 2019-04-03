@@ -19,7 +19,7 @@ In the overview part of the deadline 1, we should make it more selling. This is 
 * write about why people from uni would want to use the app (overview) DONE
 * advertise your API more (overview) DONE
 * focus more on the how the API is used and make things more simple (main concepts) DONE
-* be more specific on which other APIs could be used with our API (API uses)
+* be more specific on which other APIs could be used with our API (API uses) DONE
 * find another API which includes same kind of functionality than our API (related work)
 
 ### Comments from staff
