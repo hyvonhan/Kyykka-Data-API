@@ -19,21 +19,29 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    team1 = db.Column(db.String(64), nullable = True)
-    team2 = db.Column(db.String(64), nullable = True)
-    date = db.Column(db.String(64), nullable = True)
-    team1_points = db.Column(db.Integer, nullable = True)
-    team2_points = db.Column(db.Integer, nullable = True)
+    team1 = db.Column(db.String(64), nullable = True) #muista muuttaa falseksi
+    team2 = db.Column(db.String(64), nullable = True) #muista muuttaa falseksi
+    date = db.Column(db.String(64), nullable = True)  #muista muuttaa falseksi
+    team1_points = db.Column(db.Integer, nullable = True) #muista muuttaa falseksi
+    team2_points = db.Column(db.Integer, nullable = True) #muista muuttaa falseksi
     
-    throws = db.relationship("Throw", back_populates="current_match")
+    matches_throws = db.relationship("Throw", back_populates="current_match")
     
 class Throw(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    player = db.Column(db.String(64), nullable=False)
-    points = db.Column(db.Integer, nullable=False)
+    id = db.Column(db.Integer, primary_key = True)
+    player_id = db.Column(db.Integer, db.ForeignKey("player.id"), nullable = False)
+    points = db.Column(db.Integer, nullable = False)
     match_id = db.Column(db.Integer, db.ForeignKey("match.id"), nullable = False)
     
-    current_match = db.relationship("Match", back_populates="throws")
+    current_match = db.relationship("Match", back_populates="matches_throws")
+    individual_throw = db.relationship("Player", back_populates="player_throws")
+    
+class Player(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(64), nullable = False, unique=True)
+    team = db.Column(db.String(64), nullable = False)
+    
+    player_throws = db.relationship("Throw", back_populates="individual_throw")
 
 @app.route("/match/add/", methods=["POST"])     #this function inserts a new match entry to the Match-table
 def add_match():
