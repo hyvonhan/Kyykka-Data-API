@@ -38,8 +38,8 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 ### Action points
 *List here the actions points discussed with assistants*
 
-* update player model in Table 3 (database design)
-* add fifth resource: player (database design)
+* update player model in Table 3 (database design) DONE
+* add fifth resource: player (database design) DONE
 * in code, put models in different file (database implementation)
 * solve how to restrick team_points between -80 and 80 (database implementation)
 * in the future, implement DELETE and PUT
