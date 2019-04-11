@@ -13,7 +13,7 @@ In order to create your virtual environment, first create a folder in your compu
 ```
 python -m venv /path/to/the/virtualenv
 ```
-where ```/path/to/the/virtualenv``` is the path to your folder you just created. You will see the name of your virtualenv in parenthesis in front of your command prompt. Next, you need to download requirements.txt file, which can be found inside the source_code file. Place it in the folder of your virtual environment. Type in your command prompt:
+where ```/path/to/the/virtualenv``` is the path to your folder you just created. You will see the name of your virtualenv in parenthesis in front of your command prompt. Next, you need to download requirements.txt file, which can be found inside the source_code folder. Place it in the folder of your virtual environment. Type in your command prompt:
 ```
 "file name"\Scripts\activate.bat
 ```
@@ -42,13 +42,13 @@ In order to test the code, the database needs to be populated. This can be done 
 
 ### Instructions on how to populate the database.
 
-Now that ipython is active, you can start populating the database. At minimum you will need to insert two different matches and add throws in each of them. Every match overall includes 64 throws, but for testing purposes 3 throws per match is enough. Lets start by adding the two matches in our database.
+Now that ipython is active, you can start populating the database. At minimum you will need to insert two different matches and add players and throws in each of them. Every match overall includes 64 throws, but for testing purposes 3 throws per match is enough. Lets start by adding the two matches in our database.
 ```
 [1]from app import db
 [2]db.create_all()
-[3]from app import Match, Throw
+[3]from app import Match, Throw, Player
 ```
-These two commands will create two tables: MATCH and THROW. The db.file will be created in the same folder where the actual code is in your computer. This is an SQLite database with two empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
+These two commands will create three tables: MATCH, THROW and PLAYER. The db.file will be created in the same folder where the actual code is in your computer. This is an SQLite database with three empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
 ```
 [4]game1 = Match(team1="Bears", team2="Wolves") 
 [5]game2 = Match(team1="Beevers", team2="Hogs")
@@ -56,21 +56,35 @@ These two commands will create two tables: MATCH and THROW. The db.file will be 
 [7]db.session.add(game2)
 [8]db.session.commit()
 ```
-To check your games, type ```Match.query.first()```. Next, we should add some throws for each of the games.
+To check your games, type ```Match.query.first()```. 
+Next, we should add players for the games.
 ```
-[9]throw1 = Throw(player="Tom", points=2, match_id=1)
-[10]throw2 = Throw(player="Lea", points=-4, match_id=1)
-[11]throw3 = Throw(player="John", points=8, match_id=1)
-[12]throw65 = Throw(player="Mary", points=-6, match_id=2)
-[13]throw66 = Throw(player="Alex", points=2, match_id=2)
-[14]throw67 = Throw(player="Jean", points=0, match_id=2)
-[15]db.session.add(throw1)
-[16]db.session.add(throw2)
-[17]db.session.add(throw3)
-[18]db.session.add(throw65)
-[19]db.session.add(throw66)
-[20]db.session.add(throw67)
-[21]db.session.commit()
+[9]player1 = Player(name="Keijo", team="Bears")
+[10]player2 = Player(name="Sirkka", team="Wolves")
+[11]player3 = Player(name="Pena", team="Beevers")
+[12]player4 = Player(name"Justiina", team="Hogs")
+[13]db.session.add(player1)
+[14]db.session.add(player2)
+[15]db.session.add(player3)
+[16]db.session.add(player4)
+[17]db.session.commit()
+```
+
+Next, we should add some throws for each of the games.
+```
+[18]throw1 = Throw(player_id=1, points=2, match_id=1)
+[19]throw2 = Throw(player_id=2, points=-4, match_id=1)
+[20]throw3 = Throw(player_id=1, points=8, match_id=1)
+[21]throw65 = Throw(player_id=3, points=-6, match_id=2)
+[22]throw66 = Throw(player_id=4, points=2, match_id=2)
+[23]throw67 = Throw(player_id=3, points=0, match_id=2)
+[24]db.session.add(throw1)
+[25]db.session.add(throw2)
+[26]db.session.add(throw3)
+[27]db.session.add(throw65)
+[28]db.session.add(throw66)
+[29]db.session.add(throw67)
+[30]db.session.commit()
 ```
 Throw number 65 is the first throw of the second game. As mentioned before, each game has 64 throws. To link a certain throw to a game, you need to write a correct match_id. Here number 1 means it belongs to the first game and number 2 means it belongs to the second game. You are not able to add throws to a games that do not exist. To check your throws, type ```Throw.query.first()```
 
