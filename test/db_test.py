@@ -7,8 +7,8 @@ from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError, StatementError
 
-import app
-from app import Match, Throw
+import app #the tested code needs to be in the same file
+from app import Match, Throw, Player
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -43,16 +43,33 @@ def _get_match():
 
 def _get_throw():
     return Throw(
-        player = "John",
+        player_id = 1,
         points = 2,
-        match_id = 2
+        match_id = 1
     )
     
 def _get_throw2():
     return Throw(
-        player = "Bill",
+        player_id = 2,
         points = 3,
-        match_id = 2
+        match_id = 1
+    )
+
+def _get_player1():
+    return Player(
+        name = "John",
+        team = "Bears"
+    )
+def _get_player2():
+    return Player(
+        name = "Bill",
+        team = "Wolves"
+)
+
+def _get_player3():
+    return Player(
+        name = "Mary",
+        team = "Beavers" #this team doesn´t exist
     )
 
 def test_create_instances(db_handle):
@@ -66,24 +83,35 @@ def test_create_instances(db_handle):
     match = _get_match()
     throw = _get_throw()
     throw2 = _get_throw2()
-    match.throws.append(throw) #mita tassa tapahtuu?
-    match.throws.append(throw2)
+    player1 = _get_player1()
+    player2 = _get_player2()
+    player3 = _get_player3()
+    match.matches_throws.append(throw) #mita tassa tapahtuu?
+    match.matches_throws.append(throw2)
+    player1.player_throws.append(throw)
+    player2.player_throws.append(throw2)
+    #player3.player_throws.append(player3)
     db_handle.session.add(match)
     db_handle.session.add(throw)
     db_handle.session.add(throw2)
+    db_handle.session.add(player1)
+    db_handle.session.add(player2)
+    db_handle.session.add(player3)
     db_handle.session.commit()
     
     # Check that everything exists
     assert Match.query.count() == 1
     assert Throw.query.count() == 2
+    assert Player.query.count() == 3
     db_match = Match.query.first()	
     db_throw = Throw.query.first()
+    db_player = Player.query.first()
 
-    
     # Check all relationships (both sides)
     #assert db_match.throws == db_throw
     #assert db_throw.match == db_match
-    assert db_throw in db_match.throws #luodaanko tässä yhden suhde moneen?
+    assert db_throw in db_match.matches_throws #luodaanko tässä yhden suhde moneen?
+    assert db_throw in db_player.player_throws
     #assert db_match in db_throw.current_match
 
 #----functions-------------------------------------------------	
