@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from flask_restful import Api, Resource
+from jsonschema import validate, ValidationError
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
@@ -17,12 +18,21 @@ MASON = "application/vnd.mason+json"
 LINK_RELATIONS_URL = "/kyykka/link-relations/"
 ERROR_PROFILE = "/profiles/error/"
 THROW_PROFILE = "/profiles/throw/"
+MATCH_PROFILE = "/profiles/match/"
+PLAYER_PROFILE = "/profiles/player/"
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+
+@app.route("/api/")
+def entry_point():
+    body = MasonBuilder()
+    body.add_namespace("kyykka", "/api/")
+    body.add_control("kyykka:matches-all", "/api/matches/")
+    return Response(json.dumps(body), mimetype=MASON)
 
 class Match(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -36,10 +46,32 @@ class Match(db.Model):
 
     @staticmethod
     def get_schema():
-        schema = {}
+        schema = {
+            "type": "object",
+            "required": ["team1", "team2", "id", "team1_points", "team2_points"]
+        }
         props = schema["properties"] = {}
-        #props [] = {}
-        return get_schema
+        props ["team1"] = {
+            "description": "Name of team1",
+            "type": "string"
+        }
+        props ["team2"] = {
+            "description": "Name of team2",
+            "type": "string"
+        }
+        props ["id"] = {
+            "description": "ID of match",
+            "type": "number"
+        }
+        props ["team1_points"] = {
+            "description": "Points of team1",
+            "type": "number"
+        }
+        props ["team2_points"] = {
+            "description": "Points of team2",
+            "type": "number"
+        }
+        return schema
 
 class Throw(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -52,10 +84,29 @@ class Throw(db.Model):
 
     @staticmethod
     def get_schema():
-        schema = {}
+        schema = {
+            "type": "object",
+            "required": ["id", "player_id", "points", "match_id"]
+        }
         props = schema["properties"] = {}
-        #props [] = {}
-        return get_schema
+        props ["id"] = {
+            "description": "ID of the throw",
+            "type": "number"
+        }
+        props = schema["properties"] = {}
+        props ["player_id"] = {
+            "description": "ID of the player",
+            "type": "number"
+        }
+        props ["points"] = {
+            "description": "Points of the throw",
+            "type": "number"
+        }
+        props ["match_id"] = {
+            "description": "ID of the game",
+            "type": "number"
+        }
+        return schema
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -66,101 +117,20 @@ class Player(db.Model):
 
     @staticmethod
     def get_schema():
-        schema = {}
+        schema = {
+            "type": "object",
+            "required": ["name", "team"]
+        }
         props = schema["properties"] = {}
-        #props [] = {}
-        return get_schema
-
-@app.route("/match/add/", methods=["POST"])     #this function inserts a new match entry to the Match-table
-def add_match():
-    # This branch happens when client submits the JSON document
-    try:
-        game_id = int(request.json["id"])       #reads the id from Json
-        game = Match.query.filter_by(id=game_id).first()        #takes all the data from Match-table and filters it by game_id and orders it descending from the first
-        if game:        #if the match is already in the table abort the session
-            abort(409)
-        if not game:        #if there is no existing match, execute this
-            team1 = str(request.json["team1"])      #read all the needed data from Json
-            team2 = str(request.json["team2"])
-            date = str(request.json["date"])
-            team1_points = int(request.json["team1_points"])
-            team2_points = int(request.json["team2_points"])
-            new_game = Match(       #make entry for new match insert to the table
-                id=game_id,
-                team1=team1,
-                team2=team2,
-                date=date,
-                team1_points=team1_points,
-                team2_points=team2_points
-            )
-            db.session.add(new_game)        #this will be commited to the database
-            db.session.commit()     #make the commit to the database
-            return "succesful", 201
-        else:
-             abort(404)
-    except (KeyError, ValueError, IntegrityError):
-        abort(400)
-    except TypeError:
-        abort(415)
-
-@app.route("/throw/add/", methods=["POST"])     #this function inserts a new throw entry to the Match-table
-def add_throw():
-    # This branch happens when client submits the JSON document
-    try:
-        throw_id = int(request.json["id"])      #reads data from Json
-        throw = Throw.query.filter_by(id=throw_id).first()      #takes all the data from Throw-table and filters it by throw_id and orders it descending from the first
-        if throw:       #if the throw is already in the table abort the session
-            abort(409)
-        if not throw:       #if there is no existing throw, execute this
-            player = str(request.json["player"])        #read all the needed data from Json
-            points = int(request.json["points"])
-            match_id = int(request.json["match_id"])
-            new_throw = Throw(      #make entry for new throw insert to the table
-                id=throw_id,
-                player=player,
-                points=points,
-                match_id=match_id,
-            )
-            db.session.add(new_throw)       #this will be commited to the database
-            db.session.commit()     #make the commit to the database
-            return "succesful", 201
-        else:
-             abort(404)
-    except (KeyError, ValueError, IntegrityError):
-        abort(400)
-    except TypeError:
-        abort(415)
-
-
-@app.route("/match/")       #This function retrieves all the player data from the Throw table
-def get_throws():       #It takes all the data from Throw table and prints them in to a key/value pairs for the user
-    response_data = []
-    throws = Throw.query.all()
-    for throw in throws:
-        _throw = {}
-        _throw["player"] = throw.player
-        _throw["points"] = throw.points
-        _throw["match_id"] = throw.match_id
-        response_data.append(_throw)
-    return json.dumps(response_data)
-
-class MatchCollection (Resource):
-    pass
-
-class MatchItem (Resource):
-    pass
-
-class ThrowCollection (Resource):
-    pass
-
-class ThrowItem (Resource):
-    pass
-
-class PlayerCollection (Resource):
-    pass
-
-class PlayerItem (Resource):
-    pass
+        props ["name"] = {
+            "description": "Name of the player",
+            "type": "string"
+        }
+        props ["team"] = {
+            "description": "Team of the player",
+            "type": "string"
+        }
+        return schema
 
 #do not touch
 class MasonBuilder(dict):
@@ -228,7 +198,100 @@ class MasonBuilder(dict):
         self["@controls"][ctrl_name]["href"] = href
 
 class GameBuilder(MasonBuilder):
-    pass
+
+    def add_control_all_matches(self):
+        self.add_control(
+            "kyykka:matches-all",
+            "/api/matches/",
+            method="GET",
+            encoding="json",
+            title="Add control to all matches",
+            schema=Match.get_schema()
+            )
+
+    def add_control_add_match(self):
+        self.add_control(
+            "kyykka:add-match",
+            api.url_for(MatchCollection),
+            method="POST",
+            encoding="json",
+            title="Add a new match",
+            schema=Match.get_schema()
+        )
+
+    def add_control_add_throw(self):
+        self.add_control(
+            "kyykka:add-throw",
+            api.url_for(ThrowCollection),
+            method="POST",
+            encoding="json",
+            title="Add new throw",
+            schema=Throw.get_schema()
+        )
+
+    def add_control_add_player(self):
+        self.add_control(
+            "kyykka:add-player",
+            api.url_for(PlayerCollection),
+            method="POST",
+            encoding="json",
+            title="Add new player",
+            schema=Player.get_schema()
+        )
+
+    def add_control_delete_match(self, id):
+        self.add_control(
+            "kyykka:delete",
+            api.url_for(MatchItem, id=id),
+            method="DELETE",
+            title="Delete this match"
+        )
+
+    def add_control_delete_throw(self, id):
+        self.add_control(
+            "kyykka:delete",
+            api.url_for(ThrowItem, id=id),
+            method="DELETE",
+            title="Delete this throw"
+        )
+
+    def add_control_delete_player(self, name):
+        self.add_control(
+            "kyykka:delete",
+            api.url_for(PlayerItem, name=name),
+            method="DELETE",
+            title="Delete player"
+        )
+
+    def add_control_edit_match(self, id):
+        self.add_control(
+            "edit",
+            api.url_for(MatchItem, id=id),
+            method="PUT",
+            encoding="json",
+            title="Edit this match",
+            schema=Match.get_schema()
+        )
+
+    def add_control_edit_throw(self, id):
+        self.add_control(
+            "edit",
+            api.url_for(ThrowItem, id=id),
+            method="PUT",
+            encoding="json",
+            title="Edit this throw",
+            schema=Throw.get_schema()
+        )
+
+    def add_control_edit_player(self, name):
+        self.add_control(
+            "edit",
+            api.url_for(PlayerItem, name=name),
+            method="PUT",
+            encoding="json",
+            title="Edit player",
+            schema=Player.get_schema()
+        )
 
 def create_error_response(status_code, title, message=None):
     resource_url = request.path
@@ -236,6 +299,314 @@ def create_error_response(status_code, title, message=None):
     body.add_error(title, message)
     body.add_control("profile", href=ERROR_PROFILE)
     return Response(json.dumps(body), status_code, mimetype=MASON)
+
+class MatchCollection (Resource):
+
+    def get(self):
+        body = GameBuilder()
+
+        body.add_namespace("kyykka", LINK_RELATIONS_URL)
+        body.add_control("self", api.url_for(MatchCollection))
+        body.add_control_add_match()
+        body["items"] = []
+        for db_matchid in Match.query.all():
+            item = GameBuilder(
+                id=db_matchid.id,
+                team1=db_matchid.team1,
+                team2=db_matchid.team2,
+                team1_points=db_matchid.team1_points,
+                team2_points=db_matchid.team2_points
+            )
+            item.add_control("self", api.url_for(MatchItem, id=db_matchid.id))
+            item.add_control("profile", THROW_PROFILE)
+            body["items"].append(item)
+
+        return Response(json.dumps(body), 200, mimetype=MASON)
+
+    def post(self):
+        if not request.json:
+            return create_error_response(415,"Unsupported media type", "Request must be JSON")
+
+        try:
+            validate(request.json, Match.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        new_match = Match(
+            id=request.json["id"],
+            team1=request.json["team1"],
+            team2=request.json["team2"],
+            team1_points=request.json["team1_points"],
+            team2_points=request.json["team2_points"]
+        )
+
+        try:
+            db.session.add(new_match)
+            db.session.commit()
+        except IntegrityError:
+            return create_error_response(409, "Already exists", "Match with id '{}' already exists".format(request.json["id"]))
+
+        return Response(status=201, headers={"Location": api.url_for(MatchItem, id=request.json["id"])})
+
+class MatchItem (Resource):
+
+    def get(self, id):
+        db_matchid = Match.query.filter_by(id=id),first()
+        if db_matchid is None:
+            return create_error_response(404, "Not found", "No match was found with id {}".format(id))
+
+        body = GameBuilder(
+            id=db_matchid.id,
+            team1=db_matchid.team1,
+            team2=db_matchid.team2,
+            team1_points=db_matchid.team1_points,
+            team2_points=db_matchid.team2_points
+        )
+
+        body.add_namespace("kyykka", LINK_RELATIONS_URL)
+        body.add_control("self", api.url_for(MatchItem, id=id))
+        body.add_control("profile", MATCH_PROFILE)
+        body.add_control("collection", api.url_for(MatchCollection))
+        body.add_control_delete_match(id)
+        body.add_control_edit_match(id)
+
+        return Response(json.dumps(body), status=200, mimetype=MASON)
+
+    def put(self, id):
+        db_matchid = Match.query.filter_by(id=id).first()
+        if db_matchid is None:
+            return create_error_response(404, "Not found", "No match was found with id {}".format(id))
+
+        if not request.json:
+            return create_error_response(415, "Unsupported media type", "Requests must be JSON")
+
+        try:
+            validate(request.json, Match.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        db_matchid.id = request.json["id"]
+        db_matchid.team1 = request.json["team1"]
+        db_matchid.team2 = request.json["team2"]
+        db_matchid.team1_points = request.json["team1_points"]
+        db_matchid.team2_points = request.json["team2_points"]
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            return create_error_response(409, "Already exists", "Match with id '{}' already exists".format(request.json["id"]))
+
+        return Response(status=204)
+
+    def delete(self, id):
+        db_matchid = Match.query.filter_by(id=id).first()
+        if db_matchid is None:
+            return create_error_response(404, "Not found", "No match was found with id {}".format(id))
+
+        db.session.delete(db_matchid)
+        db.session.commit()
+
+        return Response(status=204)
+
+class ThrowCollection (Resource):
+
+    def get(self):
+        body = GameBuilder()
+
+        body.add_namespace("kyykka", LINK_RELATIONS_URL)
+        body.add_control("self", api.url_for(ThrowCollection))
+        body.add_control_add_throw()
+        body["items"] = []
+        for db_throwid in Throw.query.all():
+            item = GameBuilder(
+                id=db_throwid.id,
+                points=db_throwid.points,
+                player_id=db_throwid.player_id,
+                match_id=db_throwid.match_id
+            )
+            item.add_control("self", api.url_for(ThrowItem, id=db_throwid.id))
+            item.add_control("profile", THROW_PROFILE)
+            body["items"].append(item)
+
+        return Response(json.dumps(body), status=200, mimetype=MASON)
+
+    def post(self):
+        if not request.json:
+            return create_error_response(415, "Unsupported media type", "Requests must be JSON")
+
+        try:
+            validate(request.json, Throw.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        new_throw = Throw(
+            id=request.json["id"],
+            points=request.json["points"],
+            player_id=request.json["player_id"],
+            match_id=request.json["match_id"]
+        )
+
+        try:
+            db.session.add(new_throw)
+            db.session.commit()
+        except IntegrityError:
+            return create_error_response(409, "Already exists", "Throw with id '{}' already exists".format(request.json["id"]))
+
+        return Response(status=201, headers={"Location": api.url_for(ThrowItem, id=request.json["id"])})
+
+class ThrowItem (Resource):
+
+    def get(self, id):
+        db_throwid = Throw.query.filter_by(id=id),first()
+        if db_throwid is None:
+            return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
+
+        body = GameBuilder(
+            id=db_throwid.id,
+            points=db_throwid.points,
+            player_id=db_throwid.player_id,
+            match_id=db_throwid.match_id
+        )
+
+        body.add_namespace("kyykka", LINK_RELATIONS_URL)
+        body.add_control("self", api.url_for(ThrowItem, id=id))
+        body.add_control("profile", THROW_PROFILE)
+        body.add_control("collection", api.url_for(ThrowCollection))
+        body.add_control_delete_throw(id)
+        body.add_control_edit_throw(id)
+
+        return Response(json.dumps(body), status=200, mimetype=MASON)
+
+    def put(self, id):
+        db_throwid = Throw.query.filter_by(id=id).first()
+        if db_throwid is None:
+            return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
+
+        if not request.json:
+            return create_error_response(415, "Unsupported media type", "Requests must be JSON")
+
+        try:
+            validate(request.json, Throw.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        db_throwid.id = request.json["id"]
+        db_throwid.points = request.json["points"]
+        db_throwid.player_id = request.json["player_id"]
+        db_throwid.match_id = request.json["match_id"]
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            return create_error_response(409, "Already exists", "Throw with id '{}' already exists".format(request.json["id"]))
+
+        return Response(status=204)
+
+    def delete(self, id):
+        db_throwid = Throw.query.filter_by(id=id).first()
+        if db_throwid is None:
+            return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
+
+        db.session.delete(db_throwid)
+        db.session.commit()
+
+        return Response(status=204)
+
+class PlayerCollection (Resource):
+
+    def get(self):
+        body = GameBuilder()
+
+        body.add_namespace("kyykka", LINK_RELATIONS_URL)
+        body.add_control("self", api.url_for(PlayerCollection))
+        body.add_control_add_player()
+        body["items"] = []
+        for db_player in Player.query.all():
+            item = GameBuilder(
+                name=db_player.name,
+                team=db_player.team
+            )
+            item.add_control("self", api.url_for(PlayerItem, name=db_player.name))
+            item.add_control("profile", PLAYER_PROFILE)
+            body["items"].append(item)
+
+        return Response(json.dumps(body), status=200, mimetype=MASON)
+
+    def post(self):
+        if not request.json:
+            return create_error_response(415, "Unsupported media type", "Requests must be JSON")
+
+        try:
+            validate(request.json, Player.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        new_player = Player(
+            name=request.json["name"],
+            team=request.json["team"]
+        )
+
+        try:
+            db.session.add(new_player)
+            db.session.commit()
+        except IntegrityError:
+            return create_error_response(409, "Already exists", "Player with name '{}' already exists".format(request.json["name"]))
+
+        return Response(status=201, headers={"Location": api.url_for(PlayerItem, name=request.json["name"])})
+
+class PlayerItem (Resource):
+
+    def get(self, name):
+        db_player = Player.query.filter_by(name=name),first()
+        if db_player is None:
+            return create_error_response(404, "Not found", "No player was found with name {}".format(name))
+
+        body = GameBuilder(
+            name=db_player.name,
+            team=db_player.team
+        )
+
+        body.add_namespace("kyykka", LINK_RELATIONS_URL)
+        body.add_control("self", api.url_for(PlayerItem, name=name))
+        body.add_control("profile", PLAYER_PROFILE)
+        body.add_control("collection", api.url_for(PlayerCollection))
+        body.add_control_delete_player(name)
+        body.add_control_edit_player(name)
+
+        return Response(json.dumps(body), status=200, mimetype=MASON)
+
+    def put(self, name):
+        db_player = Player.query.filter_by(name=name).first()
+        if db_player is None:
+            return create_error_response(404, "Not found", "No player was found with name {}".format(name))
+
+        if not request.json:
+            return create_error_response(415, "Unsupported media type", "Requests must be JSON")
+
+        try:
+            validate(request.json, Player.get_schema())
+        except ValidationError as e:
+            return create_error_response(400, "Invalid JSON document", str(e))
+
+        db_player.name = request.json["name"]
+        db_player.team = request.json["team"]
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            return create_error_response(409, "Already exists", "Player with name '{}' already exists".format(request.json["name"]))
+
+        return Response(status=204)
+
+    def delete(self, name):
+        db_player = Player.query.filter_by(name=name).first()
+        if db_player is None:
+            return create_error_response(404, "Not found", "No player was found with name {}".format(name))
+
+        db.session.delete(db_player)
+        db.session.commit()
+
+        return Response(status=204)
 
 api.add_resource(MatchCollection, "/api/matches/")
 api.add_resource(MatchItem, "/api/matches/<match_id>/")
