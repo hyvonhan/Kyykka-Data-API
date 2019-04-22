@@ -50,8 +50,8 @@ Now that ipython is active, you can start populating the database. At minimum yo
 ```
 These two commands will create three tables: MATCH, THROW and PLAYER. The db.file will be created in the same folder where the actual code is in your computer. This is an SQLite database with three empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
 ```
-[4]game1 = Match(team1="Bears", team2="Wolves") 
-[5]game2 = Match(team1="Beevers", team2="Hogs")
+[4]game1 = Match(team1="Bears", team2="Wolves", date="22.1.2019", team1_points=20, team2_points=29) 
+[5]game2 = Match(team1="Beavers", team2="Hogs", date="29.2.2019", team1_points=-10, team2_points=-40)
 [6]db.session.add(game1)
 [7]db.session.add(game2)
 [8]db.session.commit()
@@ -61,7 +61,7 @@ Next, we should add players for the games.
 ```
 [9]player1 = Player(name="Keijo", team="Bears")
 [10]player2 = Player(name="Sirkka", team="Wolves")
-[11]player3 = Player(name="Pena", team="Beevers")
+[11]player3 = Player(name="Pena", team="Beavers")
 [12]player4 = Player(name"Justiina", team="Hogs")
 [13]db.session.add(player1)
 [14]db.session.add(player2)
