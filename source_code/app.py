@@ -33,6 +33,78 @@ def entry_point():
 
 class GameBuilder(MasonBuilder):
 
+    @staticmethod
+    def match_schema():
+        schema = {
+            "type": "object",
+            "required": ["team1", "team2", "id", "team1_points", "team2_points"]
+        }
+        props = schema["properties"] = {}
+        props ["team1"] = {
+            "description": "Name of team1",
+            "type": "string"
+        }
+        props ["team2"] = {
+            "description": "Name of team2",
+            "type": "string"
+        }
+        props ["id"] = {
+            "description": "ID of match",
+            "type": "number"
+        }
+        props ["team1_points"] = {
+            "description": "Points of team1",
+            "type": "number"
+        }
+        props ["team2_points"] = {
+            "description": "Points of team2",
+            "type": "number"
+        }
+        return schema
+
+    @staticmethod
+    def throw_schema():
+        schema = {
+            "type": "object",
+            "required": ["id", "player_id", "points", "match_id"]
+        }
+        props = schema["properties"] = {}
+        props ["id"] = {
+            "description": "ID of the throw",
+            "type": "number"
+        }
+        props = schema["properties"] = {}
+        props ["player_id"] = {
+            "description": "ID of the player",
+            "type": "number"
+        }
+        props ["points"] = {
+            "description": "Points of the throw",
+            "type": "number"
+        }
+        props ["match_id"] = {
+            "description": "ID of the game",
+            "type": "number"
+        }
+        return schema
+
+    @staticmethod
+    def player_schema():
+        schema = {
+            "type": "object",
+            "required": ["name", "team"]
+        }
+        props = schema["properties"] = {}
+        props ["name"] = {
+            "description": "Name of the player",
+            "type": "string"
+        }
+        props ["team"] = {
+            "description": "Team of the player",
+            "type": "string"
+        }
+        return schema
+
     def add_control_all_matches(self):
         self.add_control(
             "kyykka:matches-all",
@@ -40,7 +112,7 @@ class GameBuilder(MasonBuilder):
             method="GET",
             encoding="json",
             title="Add control to all matches",
-            schema=Match.get_schema()
+            schema=self.match_schema()
             )
 
     def add_control_add_match(self):
@@ -50,7 +122,7 @@ class GameBuilder(MasonBuilder):
             method="POST",
             encoding="json",
             title="Add a new match",
-            schema=Match.get_schema()
+            schema=self.match_schema()
         )
 
     def add_control_add_throw(self):
@@ -60,7 +132,7 @@ class GameBuilder(MasonBuilder):
             method="POST",
             encoding="json",
             title="Add new throw",
-            schema=Throw.get_schema()
+            schema=self.throw_schema()
         )
 
     def add_control_add_player(self):
@@ -70,7 +142,7 @@ class GameBuilder(MasonBuilder):
             method="POST",
             encoding="json",
             title="Add new player",
-            schema=Player.get_schema()
+            schema=self.player_schema()
         )
 
     def add_control_delete_match(self, id):
@@ -104,7 +176,7 @@ class GameBuilder(MasonBuilder):
             method="PUT",
             encoding="json",
             title="Edit this match",
-            schema=Match.get_schema()
+            schema=self.match_schema()
         )
 
     def add_control_edit_throw(self, id):
@@ -114,7 +186,7 @@ class GameBuilder(MasonBuilder):
             method="PUT",
             encoding="json",
             title="Edit this throw",
-            schema=Throw.get_schema()
+            schema=self.throw_schema()
         )
 
     def add_control_edit_player(self, name):
@@ -124,7 +196,7 @@ class GameBuilder(MasonBuilder):
             method="PUT",
             encoding="json",
             title="Edit player",
-            schema=Player.get_schema()
+            schema=self.player_schema()
         )
 
 class MatchCollection (Resource):
@@ -155,7 +227,7 @@ class MatchCollection (Resource):
             return create_error_response(415,"Unsupported media type", "Request must be JSON")
 
         try:
-            validate(request.json, Match.get_schema())
+            validate(request.json, GameBuilder.match_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -208,7 +280,7 @@ class MatchItem (Resource):
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
         try:
-            validate(request.json, Match.get_schema())
+            validate(request.json, GameBuilder.match_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -262,7 +334,7 @@ class ThrowCollection (Resource):
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
         try:
-            validate(request.json, Throw.get_schema())
+            validate(request.json, GameBuilder.throw_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -313,7 +385,7 @@ class ThrowItem (Resource):
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
         try:
-            validate(request.json, Throw.get_schema())
+            validate(request.json, GameBuilder.throw_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -364,7 +436,7 @@ class PlayerCollection (Resource):
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
         try:
-            validate(request.json, Player.get_schema())
+            validate(request.json, GameBuilder.player_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
@@ -411,7 +483,7 @@ class PlayerItem (Resource):
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
         try:
-            validate(request.json, Player.get_schema())
+            validate(request.json, GameBuilder.player_schema())
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
