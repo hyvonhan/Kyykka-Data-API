@@ -44,9 +44,9 @@ In order to test the code, the database needs to be populated. This can be done 
 
 Now that ipython is active, you can start populating the database. At minimum you will need to insert two different matches and add players and throws in each of them. Every match overall includes 64 throws, but for testing purposes 3 throws per match is enough. Lets start by adding the two matches in our database.
 ```
-[1]from app import db
+[1]from models import db
 [2]db.create_all()
-[3]from app import Match, Throw, Player
+[3]from models import Match, Throw, Player
 ```
 These two commands will create three tables: MATCH, THROW and PLAYER. The db.file will be created in the same folder where the actual code is in your computer. This is an SQLite database with three empty tables. If you want to view the database, you can use DB browser for SQLite https://sqlitebrowser.org/. Next, we want to add two matches in the MATCH table. If at any point you get an exception, you should use ```db.session.rollback()``` to roll the transaction back.
 ```
