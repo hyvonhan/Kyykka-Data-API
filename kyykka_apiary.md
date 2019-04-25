@@ -8,7 +8,7 @@ Kyykkä-Data-API offers different functionalities to store and compare statistic
 # Group Link Relations
 
 This section described custom link relations defined in this API. These are not resources. The API also uses 
-[IANA link relations](http://www.iana.org/assignments/link-relations/link-relations.xhtml) where applicable. Custom link relations are CURIEs that use the mumeta prefix.
+[IANA link relations](http://www.iana.org/assignments/link-relations/link-relations.xhtml) where applicable. Custom link relations are CURIEs that use the kyykka prefix.
 
 ## add-throw
 
@@ -24,7 +24,7 @@ Leads to the root level albums collection which is a list of all albums known to
 
 ## throws-by
 
-Leads to a collection resoruce that includes all albums by the associated artist.
+Leads to a collection resoruce that includes all throws by a player.
 
 ## players-all
 
@@ -44,7 +44,7 @@ Profile definition for all album related resources.
 
 ### Link Relations
 
-This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the mumeta namespace are used:
+This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the kyykka namespace are used:
 
  * [add-throw](reference/link-relations/add-throw)
  * [add-match](reference/link-relations/add-mathc)
@@ -77,7 +77,7 @@ Profile definition for all album related resources.
 
 ### Link Relations
 
-This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the mumeta namespace are used:
+This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the kyykka namespace are used:
 
  * [add-throw](reference/link-relations/add-throw)
  * [add-match](reference/link-relations/add-mathc)
@@ -111,7 +111,7 @@ Profile definition for all players.
 
 ### Link Relations
 
-This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the mumeta namespace are used:
+This section lists all possible link relations associated with albums; not all of them are necessarily present on each resource type. The following link relations from the kyykka namespace are used:
 
  * [matches-all](reference/link-relations/matches-all)
  * [throws-by](reference/link-relations/throws-by)
@@ -180,7 +180,7 @@ Get a list of all matches known to the API.
 
             {
                 "@namespaces": {
-                    "mumeta": {
+                    "kyykka": {
                         "name": "/kyykka_apiary/link-relations#"
                     }
                 },
@@ -188,11 +188,11 @@ Get a list of all matches known to the API.
                     "self": {
                         "href": "/api/matches/"
                     },
-                    "mumeta:throws-by": {
+                    "kyykka:throws-by": {
                         "href": "/api/matches/{id}/throws",
                         "title": "All throws"
                     },
-                    "mumeta:add-match": {
+                    "kyykka:add-match": {
                         "href": "/api/matches/",
                         "title": "Add a match to a match collection",
                         "encoding": "json",
@@ -328,7 +328,7 @@ Get the match representation.
     
             {
                 "@namespaces": {
-                    "mumeta": {
+                    "kyykka": {
                         "name": "/kyykka_apiary/link-relations#"
                     }
                 },
@@ -341,19 +341,19 @@ Get the match representation.
                     "author": {
                         "href": "/api/matches/3/"
                     },
-                    "mumeta:matches-by": {
+                    "kyykka:matches-by": {
                         "href": "/api/matches/3/"
                     },
                     "self": {
                         "href": "/api/matches/3/"
                     },
                     "profile": {
-                        "href": "/profiles/match/"
+                        "href": "/profiles/matches/"
                     },
                     "collection": {
                         "href": "/api/matches/"
                     },
-                    "mumeta:matches-all": {
+                    "kyykka:matches-all": {
                         "href": "/api/matches/",
                         "title": "All matches"
                     },
@@ -396,7 +396,7 @@ Get the match representation.
                             "required": ["team1", "team2", "date"]
                         }
                     },
-                    "mumeta:delete": {
+                    "kyykka:delete": {
                         "href": "/api/matches/3/",
                         "title": "Delete this match",
                         "method": "DELETE"
@@ -449,7 +449,7 @@ Replace the match's representation with a new one. Missing optional fields will 
     + Body
     
             {
-                "resource_url": "/api/match/",
+                "resource_url": "/api/matches/",
                 "@error": {
                     "@message": "Invalid points format",
                     "@messages": [
@@ -539,7 +539,7 @@ Deletes the match.
 
 All of these resources use the [Throw Profile](reference/profiles/throw-profile). In error scenarios [Error Profile](reference/profiles/error-profile) is used.
 
-## Throws in match [/matches/{match_id}/throws/]
+## Throw Collection [/matches/{match_id}/throws/]
 
 This is an throw collection by given match using the match id unique number.
 
@@ -564,20 +564,20 @@ Get a list of throws by a match.
     
             {
                 "@namespaces": {
-                    "mumeta": {
+                    "kyykka": {
                         "name": "/kyykka_apiary/link-relations#"
                     }
                 }, 
                 "@controls": {
                     "self": {
-                        "href": "/matches/1/throws/"
+                        "href": "/api/matches/1/throws/"
                     },
-                    "mumeta:throws-all": {
+                    "kyykka:throws-all": {
                         "href": "/api/throws/",
                         "title": "All throws"
                     },                    
-                    "mumeta:matches-all": {
-                        "href": "/matches/",
+                    "kyykka:matches-all": {
+                        "href": "/api/matches/?{sortby}",
                         "title": "All matches",
                         "isHrefTemplate": true,
                         "schema": {
@@ -591,9 +591,6 @@ Get a list of throws by a match.
                             },
                             "required": []
                         }
-                    },                    
-                    "author": {
-                        "href": "/matches/1/throws/"
                     },
                 "items": [
                     {
@@ -601,10 +598,10 @@ Get a list of throws by a match.
                         "current_match": 1,
                         "@controls": {
                             "self": {
-                                "href": "/matches/{match_id}/throws/"
+                                "href": "/api/matches/1/throws/"
                             },
                             "profile": {
-                                "href": "/profiles/player/"
+                                "href": "/profiles/matches/"
                             }
                         }
                     }
@@ -619,7 +616,7 @@ Get a list of throws by a match.
     
             
             {
-                "resource_url": "/matches/0/throws/666",
+                "resource_url": "/api/matches/666/throws/",
                 "@error": {
                     "@message": "Match not found",
                     "@messages": [null]
@@ -637,7 +634,7 @@ This resource represents a single throw, as identified by the matche`s unique id
 
 + Parameters
 
-    + id (integer) - throws`s unique id (id)
+    + throw_id (integer) - throws`s unique id (id)
 
 ### Throw information [GET]
 
@@ -656,7 +653,7 @@ Get the throw representation.
     
             {
                 "@namespaces": {
-                    "mumeta": {
+                    "kyykka": {
                         "name": "/kyykka_apiary/link-relations#"
                     }
                 },
@@ -667,7 +664,7 @@ Get the throw representation.
                     "author": {
                         "href": "api/matches/1/throws/3/"
                     },
-                    "mumeta:throws-by": {
+                    "kyykka:throws-by": {
                         "href": "/api/matches/3/"
                     },
                     "self": {
@@ -679,7 +676,7 @@ Get the throw representation.
                     "collection": {
                         "href": "/api/throws/"
                     },
-                    "mumeta:throws-all": {
+                    "kyykka:throws-all": {
                         "href": "/api/throws/",
                         "title": "All throws"
                     },
@@ -712,7 +709,7 @@ Get the throw representation.
                             "required": ["player", "points", "match_id"]
                         }
                     },
-                    "mumeta:delete": {
+                    "kyykka:delete": {
                         "href": "api/matches/1/throws/3/",
                         "title": "Delete this throw",
                         "method": "DELETE"
@@ -872,19 +869,19 @@ Get a list of all players known to the API.
 
             {
                 "@namespaces": {
-                    "mumeta": {
-                        "name": "/kyykkadataapi/link-relations#"
+                    "kyykka": {
+                        "name": "/kyykka_apiary/link-relations#"
                     }
                 },
                 "@controls": {
                     "self": {
                         "href": "/api/players/"
                     },
-                    "mumeta:players-all": {
+                    "kyykka:players-all": {
                         "href": "/api/players/",
                         "title": "All players"
                     },
-                    "mumeta:add-player": {
+                    "kyykka:add-player": {
                         "href": "/api/artists/",
                         "title": "Add a new player",
                         "encoding": "json",
@@ -908,6 +905,7 @@ Get a list of all players known to the API.
                 "items": [
                     {
                         "name": "pekka",
+                        "team": "kiskojat",
                         "@controls": {
                             "self": {
                                 "href": "/api/players/pekka/"
@@ -1027,7 +1025,7 @@ Get the player's representation.
     
             {
                 "@namespaces": {
-                    "mumeta": {
+                    "kyykka": {
                         "name": "/musicmeta/link-relations#"
                     }
                 },
@@ -1037,7 +1035,7 @@ Get the player's representation.
                     "self": {
                         "href": "/api/players/{player}/"
                     },
-                    "mumeta:throws-by": {
+                    "kyykka:throws-by": {
                         "href": "/api/players/pekka/throws/",
                         "title": "Throws by player"
                     },
@@ -1065,7 +1063,7 @@ Get the player's representation.
                             "required": ["name", "team"]
                         }
                     },
-                    "mumeta:delete": {
+                    "kyykka:delete": {
                         "href": "/api/players/pekka/",
                         "title": "Delete this player",
                         "method": "DELETE"
