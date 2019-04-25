@@ -1,3 +1,5 @@
+"""Resources"""
+
 import json
 import utils
 from datetime import datetime
@@ -17,13 +19,16 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 api = Api(app)
-
+"""
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
-
+"""
+"""
+Entry point
+"""
 @app.route("/api/")
 def entry_point():
     body = MasonBuilder()
@@ -31,6 +36,9 @@ def entry_point():
     body.add_control("kyykka:matches-all", "/api/matches/")
     return Response(json.dumps(body), mimetype=MASON)
 
+"""
+GameBuilder created from MasonBuilder
+"""
 class GameBuilder(MasonBuilder):
 
     @staticmethod
@@ -198,7 +206,10 @@ class GameBuilder(MasonBuilder):
             title="Edit player",
             schema=self.player_schema()
         )
-
+"""
+Resource for all matches in collection. Function GET gets all matches in collection
+and POST adds a new match to collection
+"""
 class MatchCollection (Resource):
 
     def get(self):
@@ -246,7 +257,10 @@ class MatchCollection (Resource):
             return create_error_response(409, "Already exists", "Match with id '{}' already exists".format(request.json["id"]))
 
         return Response(status=201, headers={"Location": api.url_for(MatchItem, id=request.json["id"])})
-
+"""
+Resource for single MatchItem. Function GET gets a single match, PUT edits a single match
+and DELETE deletes a match.
+"""
 class MatchItem (Resource):
 
     def get(self, id):
@@ -306,7 +320,10 @@ class MatchItem (Resource):
         db.session.commit()
 
         return Response(status=204)
-
+"""
+Resource for ThrowCollection. Function GET gets all the throws in collection
+and POST adds a new throw to collection.
+"""
 class ThrowCollection (Resource):
 
     def get(self):
@@ -352,7 +369,10 @@ class ThrowCollection (Resource):
             return create_error_response(409, "Already exists", "Throw with id '{}' already exists".format(request.json["id"]))
 
         return Response(status=201, headers={"Location": api.url_for(ThrowItem, id=request.json["id"])})
-
+"""
+Resource for ThrowItem. Function GET gets a single throw, PUT edits a throw
+and DELETE deletes a throw.
+"""
 class ThrowItem (Resource):
 
     def get(self, id):
@@ -410,7 +430,10 @@ class ThrowItem (Resource):
         db.session.commit()
 
         return Response(status=204)
-
+"""
+Resource for PlayerCollection. Function GET gets all the players in collection
+and POST adds a new player to collection.
+"""
 class PlayerCollection (Resource):
 
     def get(self):
@@ -452,7 +475,10 @@ class PlayerCollection (Resource):
             return create_error_response(409, "Already exists", "Player with name '{}' already exists".format(request.json["name"]))
 
         return Response(status=201, headers={"Location": api.url_for(PlayerItem, name=request.json["name"])})
-
+"""
+Resource for single PlayerItem. Function GET gets a player, PUT edits a player
+and DELETE deletes a player.
+"""
 class PlayerItem (Resource):
 
     def get(self, name):
