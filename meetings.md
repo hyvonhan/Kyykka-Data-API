@@ -76,8 +76,8 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
 
 ## Meeting 4.
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 26.4.2019**
+* **ASSISTANTS: Mika Oja**
 * **GRADE:** *To be filled by course staff*
 
 ### Minutes
@@ -86,6 +86,12 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 ### Action points
 *List here the actions points discussed with assistants*
 
+* Write the test code for API
+* Comment your code and remove the comments to right place
+* Remove ID from MatchCollection and ThrowCollection. 
+   * Remove ID also from schema
+   *
+* Models, what happens when DELETE
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
