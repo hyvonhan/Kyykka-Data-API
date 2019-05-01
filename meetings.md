@@ -87,10 +87,9 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 *List here the actions points discussed with assistants*
 
 * Write the test code for API
-* Comment your code and remove the comments to right place
+* Comment your code and replace the comments to right place DONE
 * Remove ID from MatchCollection and ThrowCollection. 
    * Remove ID also from schema
-   *
 * Models, what happens when DELETE
 
 ### Comments from staff
