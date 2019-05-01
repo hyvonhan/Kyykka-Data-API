@@ -19,28 +19,28 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 api = Api(app)
-"""
+
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
-"""
+
+@app.route("/api/")
+def entry_point():
 """
 Entry point
 """
-@app.route("/api/")
-def entry_point():
     body = MasonBuilder()
     body.add_namespace("kyykka", "/api/")
     body.add_control("kyykka:matches-all", "/api/matches/")
     return Response(json.dumps(body), mimetype=MASON)
 
+
+class GameBuilder(MasonBuilder):
 """
 GameBuilder created from MasonBuilder
 """
-class GameBuilder(MasonBuilder):
-
     @staticmethod
     def match_schema():
         schema = {
@@ -114,6 +114,9 @@ class GameBuilder(MasonBuilder):
         return schema
 
     def add_control_all_matches(self):
+    """
+    Control to all matches
+    """
         self.add_control(
             "kyykka:matches-all",
             "/api/matches/",
@@ -124,6 +127,9 @@ class GameBuilder(MasonBuilder):
             )
 
     def add_control_add_match(self):
+    """
+    Control to add match
+    """
         self.add_control(
             "kyykka:add-match",
             api.url_for(MatchCollection),
@@ -134,6 +140,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_add_throw(self):
+    """
+    Control to add throw
+    """
         self.add_control(
             "kyykka:add-throw",
             api.url_for(ThrowCollection),
@@ -144,6 +153,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_add_player(self):
+    """
+    Control to add player
+    """
         self.add_control(
             "kyykka:add-player",
             api.url_for(PlayerCollection),
@@ -154,6 +166,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_delete_match(self, id):
+    """
+    Control to delete match
+    """
         self.add_control(
             "kyykka:delete",
             api.url_for(MatchItem, id=id),
@@ -162,6 +177,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_delete_throw(self, id):
+    """
+    Control to delete throw
+    """
         self.add_control(
             "kyykka:delete",
             api.url_for(ThrowItem, id=id),
@@ -170,6 +188,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_delete_player(self, name):
+    """
+    Control to delete player
+    """
         self.add_control(
             "kyykka:delete",
             api.url_for(PlayerItem, name=name),
@@ -178,6 +199,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_edit_match(self, id):
+    """
+    Control to edit match
+    """
         self.add_control(
             "edit",
             api.url_for(MatchItem, id=id),
@@ -188,6 +212,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_edit_throw(self, id):
+    """
+    Control to edit throw
+    """
         self.add_control(
             "edit",
             api.url_for(ThrowItem, id=id),
@@ -198,6 +225,9 @@ class GameBuilder(MasonBuilder):
         )
 
     def add_control_edit_player(self, name):
+    """
+    Control to edit player
+    """
         self.add_control(
             "edit",
             api.url_for(PlayerItem, name=name),
@@ -206,13 +236,16 @@ class GameBuilder(MasonBuilder):
             title="Edit player",
             schema=self.player_schema()
         )
+
+class MatchCollection (Resource):
 """
 Resource for all matches in collection. Function GET gets all matches in collection
 and POST adds a new match to collection
 """
-class MatchCollection (Resource):
-
     def get(self):
+    """
+    GET method to get all matches from the collection
+    """
         body = GameBuilder()
 
         body.add_namespace("kyykka", LINK_RELATIONS_URL)
@@ -234,6 +267,9 @@ class MatchCollection (Resource):
         return Response(json.dumps(body), 200, mimetype=MASON)
 
     def post(self):
+    """
+    POST method adds new match to collection
+    """
         if not request.json:
             return create_error_response(415,"Unsupported media type", "Request must be JSON")
 
@@ -257,13 +293,17 @@ class MatchCollection (Resource):
             return create_error_response(409, "Already exists", "Match with id '{}' already exists".format(request.json["id"]))
 
         return Response(status=201, headers={"Location": api.url_for(MatchItem, id=request.json["id"])})
+
+class MatchItem (Resource):
 """
 Resource for single MatchItem. Function GET gets a single match, PUT edits a single match
 and DELETE deletes a match.
 """
-class MatchItem (Resource):
 
     def get(self, id):
+    """
+    GET method gets a single match
+    """
         db_matchid = Match.query.filter_by(id=id),first()
         if db_matchid is None:
             return create_error_response(404, "Not found", "No match was found with id {}".format(id))
@@ -286,6 +326,9 @@ class MatchItem (Resource):
         return Response(json.dumps(body), status=200, mimetype=MASON)
 
     def put(self, id):
+    """
+    PUT method edits a single match
+    """
         db_matchid = Match.query.filter_by(id=id).first()
         if db_matchid is None:
             return create_error_response(404, "Not found", "No match was found with id {}".format(id))
@@ -312,6 +355,9 @@ class MatchItem (Resource):
         return Response(status=204)
 
     def delete(self, id):
+    """
+    DELETE method deletes a single match
+    """
         db_matchid = Match.query.filter_by(id=id).first()
         if db_matchid is None:
             return create_error_response(404, "Not found", "No match was found with id {}".format(id))
@@ -320,13 +366,16 @@ class MatchItem (Resource):
         db.session.commit()
 
         return Response(status=204)
+
+class ThrowCollection (Resource):
 """
 Resource for ThrowCollection. Function GET gets all the throws in collection
 and POST adds a new throw to collection.
 """
-class ThrowCollection (Resource):
-
     def get(self):
+    """
+    GET method gets all the throws from ThrowCollection
+    """
         body = GameBuilder()
 
         body.add_namespace("kyykka", LINK_RELATIONS_URL)
@@ -347,6 +396,9 @@ class ThrowCollection (Resource):
         return Response(json.dumps(body), status=200, mimetype=MASON)
 
     def post(self):
+    """
+    POST method adds a new throw to collection
+    """
         if not request.json:
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
@@ -369,13 +421,16 @@ class ThrowCollection (Resource):
             return create_error_response(409, "Already exists", "Throw with id '{}' already exists".format(request.json["id"]))
 
         return Response(status=201, headers={"Location": api.url_for(ThrowItem, id=request.json["id"])})
+
+class ThrowItem (Resource):
 """
 Resource for ThrowItem. Function GET gets a single throw, PUT edits a throw
 and DELETE deletes a throw.
 """
-class ThrowItem (Resource):
-
     def get(self, id):
+    """
+    GET method gets a single throw
+    """
         db_throwid = Throw.query.filter_by(id=id),first()
         if db_throwid is None:
             return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
@@ -397,6 +452,9 @@ class ThrowItem (Resource):
         return Response(json.dumps(body), status=200, mimetype=MASON)
 
     def put(self, id):
+    """
+    PUT method edits a single throw 
+    """
         db_throwid = Throw.query.filter_by(id=id).first()
         if db_throwid is None:
             return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
@@ -422,6 +480,9 @@ class ThrowItem (Resource):
         return Response(status=204)
 
     def delete(self, id):
+    """
+    DELETE method deletes a single throw
+    """
         db_throwid = Throw.query.filter_by(id=id).first()
         if db_throwid is None:
             return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
@@ -430,13 +491,16 @@ class ThrowItem (Resource):
         db.session.commit()
 
         return Response(status=204)
+
+class PlayerCollection (Resource):
 """
 Resource for PlayerCollection. Function GET gets all the players in collection
 and POST adds a new player to collection.
 """
-class PlayerCollection (Resource):
-
     def get(self):
+    """
+    GET method gets all the players from collection
+    """
         body = GameBuilder()
 
         body.add_namespace("kyykka", LINK_RELATIONS_URL)
@@ -455,6 +519,9 @@ class PlayerCollection (Resource):
         return Response(json.dumps(body), status=200, mimetype=MASON)
 
     def post(self):
+    """
+    POST method adds a new player to collection
+    """
         if not request.json:
             return create_error_response(415, "Unsupported media type", "Requests must be JSON")
 
@@ -475,13 +542,16 @@ class PlayerCollection (Resource):
             return create_error_response(409, "Already exists", "Player with name '{}' already exists".format(request.json["name"]))
 
         return Response(status=201, headers={"Location": api.url_for(PlayerItem, name=request.json["name"])})
+
+class PlayerItem (Resource):
 """
 Resource for single PlayerItem. Function GET gets a player, PUT edits a player
 and DELETE deletes a player.
 """
-class PlayerItem (Resource):
-
     def get(self, name):
+    """
+    GET method gets a single player
+    """
         db_player = Player.query.filter_by(name=name),first()
         if db_player is None:
             return create_error_response(404, "Not found", "No player was found with name {}".format(name))
@@ -501,6 +571,9 @@ class PlayerItem (Resource):
         return Response(json.dumps(body), status=200, mimetype=MASON)
 
     def put(self, name):
+    """
+    PUT method edits a player
+    """
         db_player = Player.query.filter_by(name=name).first()
         if db_player is None:
             return create_error_response(404, "Not found", "No player was found with name {}".format(name))
@@ -524,6 +597,9 @@ class PlayerItem (Resource):
         return Response(status=204)
 
     def delete(self, name):
+    """
+    DELETE method deletes a player
+    """
         db_player = Player.query.filter_by(name=name).first()
         if db_player is None:
             return create_error_response(404, "Not found", "No player was found with name {}".format(name))
