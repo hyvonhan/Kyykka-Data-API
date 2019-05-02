@@ -55,6 +55,8 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 ### 30 Minutes
 *Summary of what was discussed during the meeting*
 
+Firstly our assistant informed that we need to correct our Uniform interface table. Previously we had marked all the items (Match, Throw, Player) had a POST method and collections didn’t which in reality is the opposite. Then we need to modify our APImap slightly, since not all the resources were connected. Previously MATCHES and PLAYERS were not connected. We also had wrongly named a connection between MATCH and THROWS as a collection. In the Apiary code we should invent our own namespace for example kyykka. In this meeting we mainly focused getting the APImap right. After this we can focuse fixing the Apiary.
+
 ### Action points
 *List here the actions points discussed with assistants*
 
