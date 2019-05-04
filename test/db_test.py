@@ -2,7 +2,6 @@ import os
 import pytest
 import tempfile
 import time
-from datetime import datetime
 from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError, StatementError
@@ -28,7 +27,8 @@ def db_handle():
         app.db.create_all()
         
     yield app.db
-    
+
+    app.db.session.remove() #this is needed in windows to remove permissionerror
     os.close(db_fd)
     os.unlink(db_fname)
 	
@@ -74,7 +74,7 @@ def _get_player3():
 
 def test_create_instances(db_handle):
     """
-    Tests that we can create one instance of each model and save them to the
+    Tests that we can create few instances of each model and save them to the
     database using valid values for all columns. After creation, test that 
     everything can be found from database, and that all relationships have been
     saved correctly.
@@ -90,7 +90,7 @@ def test_create_instances(db_handle):
     match.matches_throws.append(throw2)
     player1.player_throws.append(throw)
     player2.player_throws.append(throw2)
-    #player3.player_throws.append(player3)
+    #player3.player_throws.append(throw3)
     db_handle.session.add(match)
     db_handle.session.add(throw)
     db_handle.session.add(throw2)
@@ -108,11 +108,9 @@ def test_create_instances(db_handle):
     db_player = Player.query.first()
 
     # Check all relationships (both sides)
-    #assert db_match.throws == db_throw
-    #assert db_throw.match == db_match
     assert db_throw in db_match.matches_throws #luodaanko tässä yhden suhde moneen?
     assert db_throw in db_player.player_throws
-    #assert db_match in db_throw.current_match
+ 
 
 #----functions-------------------------------------------------	
 
@@ -127,7 +125,19 @@ def test_foreign_key_relationship(db_handle):
     db_handle.session.add(throw_1)   
     with pytest.raises(IntegrityError):
         db_handle.session.commit()
-	
+
+def test_foreign_key_relationship_2(db_handle):
+    """ 
+    Tests that we can´t assign throw to a player that doesn´t exist.
+    """
+    throw = _get_throw()
+    player3 = _get_player3()
+    throw.player = player3
+    db_handle.session.add(throw)
+    db_handle.session.add(player3)
+    with pytest.raises(IntegrityError):
+        db_handle.session.commit()
+
 def test_one_to_many_relationship(db_handle):
     """
     Tests that the relationship between match and throw is one-to-many.
@@ -144,11 +154,53 @@ def test_one_to_many_relationship(db_handle):
     try:
         db_handle.session.commit()
     except IntegrityError:
-        print("jeejee")
+        print("Onnistui")
+
+def test_one_to_many_relationship2(db_handle):
+    """
+    Tests that the relationship between player and throw is one-to-many.
+    i.e. that we can assign many throws for a single player   
+    """
+    player = _get_player1()
+    throw_1 = _get_throw()
+    throw_1.player = player
+    throw_2 = _get_throw2()
+    throw_2.player = player
+    db_handle.session.add(player)
+    db_handle.session.add(throw_1)
+    db_handle.session.add(throw_2)
+    try:
+        db_handle.session.commit()
+    except IntegrityError:
+        print("Onnistui")
+
+def test_throw_ondelete_match(db_handle):
+    """
+    Tests that when match is deleted, all the throws of the match are also deleted
+    """	
+    match = _get_match()
+    throw_1 = _get_throw()
+    throw_1.match = match
+    db_handle.session.add(match)
+    db_handle.session.commit()
+    db_handle.session.delete(match)
+    db_handle.session.commit()
+    try:
+        assert match.throw_1 is None
+    except AttributeError:
+        print("Throw doesn´t exist")
+
+def test_onupdate_match(db_handle):
+    """
+    Test that we can add final team points to the match.
+    """
+    match = _get_match()
+    db_handle.session.add(match)
+    db_handle.session.commit()
+    print(match)
+    match.team1_points = 40
+    match.team2_points = 60
+    db_handle.session.add(match)
+    db_handle.session.commit()
+    print(match)
     
-#def test_measurement_ondelete_sensor(db_handle):
-    #"""
-    #Tests that measurement's sensor foreign key is set to null when the sensor
-    #is deleted.
-    #"""	
-		
