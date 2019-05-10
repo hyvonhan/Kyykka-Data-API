@@ -8,8 +8,9 @@ from sqlalchemy.engine import Engine
 from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError, StatementError
 
-from app import app, db #the tested code needs to be in the same file
-from models import Match, Throw, Player
+from app import app #the tested code needs to be in the same file
+from models import Match, Throw, Player, db
+import utils
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -45,7 +46,7 @@ def _populate_db():
         team1_points = -100,
         team2_points = 20
     )
-    
+    '''
     match2 = Match (
         team1 = "Hawks",
         team2 = "Buffalos",
@@ -75,18 +76,33 @@ def _populate_db():
         name = "Bill",
         team = "Wolves"
     )
-
+'''
+    '''
     match1.matches_throws.append(throw1) #mita tassa tapahtuu?
     match1.matches_throws.append(throw2)
     player1.player_throws.append(throw1)
     player2.player_throws.append(throw2)
+    '''
     db.session.add(match1)
+    '''
     db.session.add(match2)
     db.session.add(throw1)
     db.session.add(throw2)
     db.session.add(player1)
     db.session.add(player2)
+    '''
     db.session.commit()
+'''
+def _check_namespace(client, response):
+    """
+    Checks that the "kyykka" namespace is found from the response body, and
+    that its "matches" attribute is a URL that can be accessed.
+    """
+
+    ns_href = response["@namespaces"]["kyykka"]["matches"]
+    resp = client.get(ns_href)
+    assert resp.status_code == 200
+    '''
 
 class TestMatchCollection(object):
 
@@ -96,7 +112,9 @@ class TestMatchCollection(object):
         resp = client.get(self.RESOURCE_URL)
         assert resp.status_code == 200
         body = json.loads(resp.data)
-        assert len(body["items"]) == 2
+        #_check_namespace(client, body)
+        #_check_control_post_method("kyykka:add-match", client, body)
+        assert len(body["items"]) == 1
         for item in body["items"]:
             assert "team1" in item
             assert "team2" in item
