@@ -24,9 +24,9 @@ class Match(db.Model):
 
 class Throw(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    player_id = db.Column(db.Integer, nullable = False, db.ForeignKey("player.id", onupdate="CASCADE", ondelete="CASCADE"))
+    player_id = db.Column(db.Integer, db.ForeignKey("player.id", onupdate="CASCADE", ondelete="CASCADE"),nullable = False)
     points = db.Column(db.Integer, nullable = False)
-    match_id = db.Column(db.Integer, nullable = False, db.ForeignKey("match.id", onupdate="CASCADE", ondelete="CASCADE"))
+    match_id = db.Column(db.Integer, db.ForeignKey("match.id", onupdate="CASCADE", ondelete="CASCADE"),nullable = False)
 
     current_match = db.relationship("Match", back_populates="matches_throws")
     individual_throw = db.relationship("Player", back_populates="player_throws")
