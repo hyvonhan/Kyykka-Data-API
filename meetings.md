@@ -40,9 +40,9 @@ At first, our assistant checked our readme file and concluded it was okay and ev
 
 * update player model in Table 3 (database design) DONE
 * add fifth resource: player (database design) DONE
-* in code, put models in different file (database implementation)
+* in code, put models in different file (database implementation) DONE
 * solve how to restrick team_points between -80 and 80 (database implementation)
-* in the future, implement DELETE and PUT
+* in the future, implement DELETE and PUT DONE
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
@@ -92,7 +92,7 @@ Firstly our assistant informed that we need to correct our Uniform interface tab
 * Comment your code and replace the comments to right place DONE
 * Remove ID from MatchCollection and ThrowCollection. 
    * Remove ID also from schema
-* Models, what happens when DELETE
+* Models, what happens when DELETE DONE
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
