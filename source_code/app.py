@@ -562,7 +562,7 @@ class PlayerItem (Resource):
         """
         GET method gets a single player
         """
-        db_player = Player.query.filter_by(name=name),first()
+        db_player = Player.query.filter_by(name=name).first()
         if db_player is None:
             return create_error_response(404, "Not found", "No player was found with name {}".format(name))
 
@@ -624,7 +624,7 @@ api.add_resource(MatchItem, "/api/matches/<id>/") #this was match_id
 api.add_resource(ThrowCollection, "/api/matches/<match_id>/throws/")
 api.add_resource(ThrowItem, "/api/matches/<match_id>/throws/<throw_id>")
 api.add_resource(PlayerCollection, "/api/players/")
-api.add_resource(PlayerItem, "/players/<player_id>/")
+api.add_resource(PlayerItem, "/api/players/<name>/")
 
 @app.route(LINK_RELATIONS_URL)
 def send_link_relations():
