@@ -2,7 +2,6 @@
 
 import json
 import utils
-from models import Match, Throw, Player
 from datetime import datetime
 from flask import Flask, request, abort, Response
 from flask_sqlalchemy import SQLAlchemy
@@ -20,6 +19,8 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 api = Api(app)
+
+from models import Match, Throw, Player
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
@@ -46,9 +47,13 @@ class GameBuilder(MasonBuilder):
     def match_schema():
         schema = {
             "type": "object",
-            "required": ["team1", "team2", "id", "team1_points", "team2_points"]
+            "required": ["id","team1", "team2", "date", "team1_points", "team2_points"]
         }
         props = schema["properties"] = {}
+        props ["id"] = {
+            "description": "ID of match",
+            "type": "number"
+        }
         props ["team1"] = {
             "description": "Name of team1",
             "type": "string"
@@ -57,10 +62,10 @@ class GameBuilder(MasonBuilder):
             "description": "Name of team2",
             "type": "string"
         }
-        #props ["id"] = {
-            #"description": "ID of match",
-            #"type": "number"
-        #}
+        props ["date"] = {
+            "description": "Date of the match",
+            "type": "string"
+        }
         props ["team1_points"] = {
             "description": "Points of team1",
             "type": "number"
@@ -255,14 +260,14 @@ class MatchCollection (Resource):
         body["items"] = []
         for db_matchid in Match.query.all():
             item = GameBuilder(
-                #id=db_matchid.id,
-                team1=db_matchid.team1, #puuttuuko date?
+                id=db_matchid.id,
+                team1=db_matchid.team1, 
                 team2=db_matchid.team2,
-                date=db_matchid.date,
+                date=db_matchid.date, #added date. seems to work now
                 team1_points=db_matchid.team1_points,
                 team2_points=db_matchid.team2_points
             )
-            item.add_control("self", api.url_for(MatchCollection)) #tassa vika?
+            item.add_control("self", api.url_for(MatchItem, id=db_matchid.id)) #should work now
             item.add_control("profile", THROW_PROFILE)
             body["items"].append(item)
 
@@ -284,6 +289,7 @@ class MatchCollection (Resource):
             id=request.json["id"],
             team1=request.json["team1"],
             team2=request.json["team2"],
+            date=request.json["date"],
             team1_points=request.json["team1_points"],
             team2_points=request.json["team2_points"]
         )
@@ -306,7 +312,7 @@ class MatchItem (Resource):
         """
         GET method gets a single match
         """
-        db_matchid = Match.query.filter_by(id=id),first()
+        db_matchid = Match.query.filter_by(id=id).first()
         if db_matchid is None:
             return create_error_response(404, "Not found", "No match was found with id {}".format(id))
 
@@ -314,6 +320,7 @@ class MatchItem (Resource):
             id=db_matchid.id,
             team1=db_matchid.team1,
             team2=db_matchid.team2,
+            date=db_matchid.date,
             team1_points=db_matchid.team1_points,
             team2_points=db_matchid.team2_points
         )
@@ -346,6 +353,7 @@ class MatchItem (Resource):
         db_matchid.id = request.json["id"]
         db_matchid.team1 = request.json["team1"]
         db_matchid.team2 = request.json["team2"]
+        db_matchid.date = request.json["date"]
         db_matchid.team1_points = request.json["team1_points"]
         db_matchid.team2_points = request.json["team2_points"]
 
@@ -514,7 +522,7 @@ class PlayerCollection (Resource):
                 name=db_player.name,
                 team=db_player.team
             )
-            item.add_control("self", api.url_for(PlayerItem, name=db_player.name))
+            item.add_control("self", api.url_for(PlayerCollection))
             item.add_control("profile", PLAYER_PROFILE)
             body["items"].append(item)
 
@@ -612,7 +620,7 @@ class PlayerItem (Resource):
         return Response(status=204)
 
 api.add_resource(MatchCollection, "/api/matches/")
-api.add_resource(MatchItem, "/api/matches/<match_id>/")
+api.add_resource(MatchItem, "/api/matches/<id>/") #this was match_id
 api.add_resource(ThrowCollection, "/api/matches/<match_id>/throws/")
 api.add_resource(ThrowItem, "/api/matches/<match_id>/throws/<throw_id>")
 api.add_resource(PlayerCollection, "/api/players/")
