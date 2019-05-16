@@ -86,9 +86,13 @@ Next, we should add some throws for each of the games.
 [29]db.session.add(throw67)
 [30]db.session.commit()
 ```
-Throw number 65 is the first throw of the second game. As mentioned before, each game has 64 throws. To link a certain throw to a game, you need to write a correct match_id. Here number 1 means it belongs to the first game and number 2 means it belongs to the second game. You are not able to add throws to a games that do not exist. To check your throws, type ```Throw.query.first()```
+Throw number 65 is the first throw of the second game. As mentioned before, each game has 64 throws. To link a certain throw to a game, you need to write a correct match_id. Here number 1 means it belongs to the first game and number 2 means it belongs to the second game. You are not able to add throws to a games that do not exist. To check your throws, type ```Throw.query.first()```.
 
 # Instruction on how to run the tests of your database.
 
-Pytest can be used to test the database. It is included in the requirements.txt file, so it was already installed. To test the database copy the app.py from source_code folder into the test folder. Then go to command prompt and locate the test folder and type ```pytest```
-Details about test can be found at the comments inside db_test.py
+Pytest is used to test the database. It is included in the requirements.txt file, so it was already installed. To test the database copy the app.py from source_code folder into the test folder. Then go to command prompt and locate the test folder and type ```pytest```.
+Details about tests can be found at the comments inside db_test.py.
+
+# Instruction on how to run the tests of the resources.
+Pytest is also used to test the resources. To test the resources, copy the app.py, models.py, utils.py from the source_code folder to your computer. Next, copy the resource_test.py from the test file to your computer. Put all the files into a single folder of your choosing. Then go to the command prompt and locate the folder you just created and type ```pytest```.
+Details about tests can be found at the comments inside resource_test.py.
