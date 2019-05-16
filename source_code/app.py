@@ -87,7 +87,6 @@ class GameBuilder(MasonBuilder):
             "description": "ID of the throw",
             "type": "number"
         }
-        props = schema["properties"] = {}
         props ["player_id"] = {
             "description": "ID of the player",
             "type": "number"
@@ -399,7 +398,7 @@ class ThrowCollection (Resource):
                 player_id=db_throwid.player_id,
                 match_id=db_throwid.match_id
             )
-            item.add_control("self", api.url_for(ThrowItem, id=db_throwid.id))
+            item.add_control("self", api.url_for(ThrowCollection))
             item.add_control("profile", THROW_PROFILE)
             body["items"].append(item)
 
@@ -441,7 +440,7 @@ class ThrowItem (Resource):
         """
         GET method gets a single throw
         """
-        db_throwid = Throw.query.filter_by(id=id),first()
+        db_throwid = Throw.query.filter_by(id=id).first()
         if db_throwid is None:
             return create_error_response(404, "Not found", "No throw was found with id {}".format(id))
 
@@ -620,9 +619,9 @@ class PlayerItem (Resource):
         return Response(status=204)
 
 api.add_resource(MatchCollection, "/api/matches/")
-api.add_resource(MatchItem, "/api/matches/<id>/") #this was match_id
-api.add_resource(ThrowCollection, "/api/matches/<match_id>/throws/")
-api.add_resource(ThrowItem, "/api/matches/<match_id>/throws/<throw_id>")
+api.add_resource(MatchItem, "/api/matches/<id>/")
+api.add_resource(ThrowCollection, "/api/throws/")
+api.add_resource(ThrowItem, "/api/throws/<id>/")
 api.add_resource(PlayerCollection, "/api/players/")
 api.add_resource(PlayerItem, "/api/players/<name>/")
 
