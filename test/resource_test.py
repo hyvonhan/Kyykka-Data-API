@@ -110,6 +110,14 @@ def _get_player_json():
             "team":"Rabies"
 }
 
+def _get_throw_json():
+    return {
+            "id":3,
+            "player_id":4,
+            "points":8,
+            "match_id":1
+}
+
 def _check_namespace(client, response):
     """
     Checks that the "kyykka" namespace is found from the response body, and
@@ -152,6 +160,50 @@ def _check_control_post_method(ctrl, client, obj):
     resp = client.post(href, json=body)
     assert resp.status_code == 201    
 
+def _check_control_post_method_player(ctrl, client, obj):
+    """
+    Checks a POST type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 201.
+    """
+    
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "post"
+    assert encoding == "json"
+    body = _get_player_json()
+    validate(body, schema)
+    resp = client.post(href, json=body)
+    assert resp.status_code == 201    
+
+def _check_control_post_method_throw(ctrl, client, obj):
+    """
+    Checks a POST type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 201.
+    """
+    
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "post"
+    assert encoding == "json"
+    body = _get_throw_json()
+    validate(body, schema)
+    resp = client.post(href, json=body)
+    assert resp.status_code == 201    
+
 def _check_control_delete_method(ctrl, client, obj):
     """
     Checks a DELETE type control from a JSON object be it root document or an
@@ -187,7 +239,53 @@ def _check_control_put_method(ctrl, client, obj):
     validate(body, schema)
     resp = client.put(href, json=body)
     assert resp.status_code == 204
-
+    
+def _check_control_put_method_player(ctrl, client, obj):
+    """
+    Checks a PUT type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 204.
+    """
+    
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "put"
+    assert encoding == "json"
+    body = _get_player_json()
+    body["name"] = obj["name"]
+    validate(body, schema)
+    resp = client.put(href, json=body)
+    assert resp.status_code == 204
+    
+def _check_control_put_method_throw(ctrl, client, obj):
+    """
+    Checks a PUT type control from a JSON object be it root document or an item
+    in a collection. In addition to checking the "href" attribute, also checks
+    that method, encoding and schema can be found from the control. Also
+    validates a valid sensor against the schema of the control to ensure that
+    they match. Finally checks that using the control results in the correct
+    status code of 204.
+    """
+    
+    ctrl_obj = obj["@controls"][ctrl]
+    href = ctrl_obj["href"]
+    method = ctrl_obj["method"].lower()
+    encoding = ctrl_obj["encoding"].lower()
+    schema = ctrl_obj["schema"]
+    assert method == "put"
+    assert encoding == "json"
+    body = _get_throw_json()
+    body["id"] = obj["id"]
+    validate(body, schema)
+    resp = client.put(href, json=body)
+    assert resp.status_code == 204
+   
 class TestMatchCollection(object):
 
     RESOURCE_URL = "/api/matches/"
@@ -218,7 +316,7 @@ class TestMatchCollection(object):
         # test with valid and see that it exists afterward
         resp = client.post(self.RESOURCE_URL, json=valid)
         body = json.loads(client.get(self.RESOURCE_URL).data)
-        id = body["items"][-1]["id"] 
+        id = body["items"][-1]["id"]
         assert resp.status_code == 201
         assert resp.headers["Location"].endswith(self.RESOURCE_URL + str(id) + "/")
         resp = client.get(resp.headers["Location"])
@@ -241,6 +339,7 @@ class TestMatchCollection(object):
         assert resp.status_code == 400
         
 class TestMatchItem(object):
+    
     RESOURCE_URL = "/api/matches/1/"
     INVALID_URL = "/api/matches/x/"
     MODIFIED_URL = "/api/matches/3/"
@@ -290,7 +389,7 @@ class TestMatchItem(object):
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 409
         
-        # test with valid (only change model)
+        # test with valid (only change id)
         valid["id"] = 1
         resp = client.put(self.RESOURCE_URL, json=valid)
         assert resp.status_code == 204
@@ -322,8 +421,6 @@ class TestMatchItem(object):
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
 
-#class TestThrowCollection(object):
-
 class TestPlayerCollection(object):
 
     RESOURCE_URL = "/api/players/"
@@ -339,11 +436,41 @@ class TestPlayerCollection(object):
         assert resp.status_code == 200
         body = json.loads(resp.data)
         _check_namespace(client, body)
-        #_check_control_post_method("kyykka:add-match", client, body)
+        _check_control_post_method_player("kyykka:add-player", client, body)
         assert len(body["items"]) == 2
         for item in body["items"]:
             assert "name" in item
             assert "team" in item
+
+    def test_post(self, client):
+        """
+        Tests the POST method. Checks all of the possible error codes, and 
+        also checks that a valid request receives a 201 response with a 
+        location header that leads into the newly created resource.
+        """
+        
+        valid = _get_player_json()
+
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        body = json.loads(client.get(self.RESOURCE_URL).data)
+        id = body["items"][-1]["name"] 
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + str(id) + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert body["name"] == "Jyrki"
+        assert body["team"] == "Rabies"
+
+        # test with wrong content type(must be json)
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+        
+        # remove title field for 400
+        valid.pop("name")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
 
 class TestPlayerItem(object):
     
@@ -367,7 +494,7 @@ class TestPlayerItem(object):
         _check_namespace(client, body)
         _check_control_get_method("profile", client, body)
         _check_control_get_method("collection", client, body)
-        #_check_control_put_method("edit", client, body) #_get_match_json tilalla pitäisi olla _get_player_json
+        _check_control_put_method_player("edit", client, body) #_get_match_json tilalla pitäisi olla _get_player_json
         _check_control_delete_method("kyykka:delete", client, body)
         resp = client.get(self.INVALID_URL)
         assert resp.status_code == 404
@@ -425,3 +552,142 @@ class TestPlayerItem(object):
         resp = client.delete(self.INVALID_URL)
         assert resp.status_code == 404
         
+class TestThrowCollection(object):
+    
+    RESOURCE_URL = "/api/throws/"
+    
+    def test_get(self, client):
+        """
+        Tests the GET method. Checks that the response status code is 200, and
+        then checks that all of the expected attributes and controls are
+        present, and the controls work. Also checks that all of the items from
+        the DB popluation are present, and their controls.
+        """
+    
+        resp = client.get(self.RESOURCE_URL)
+        
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        _check_namespace(client, body)
+        #_check_control_post_method_throw("kyykka:add-throw", client, body) 
+        assert len(body["items"]) == 2
+        for item in body["items"]:
+            assert "id" in item
+            assert "player_id" in item
+            assert "match_id" in item
+            assert "points" in item
+        
+    def test_post(self, client):
+        """
+        Tests the POST method. Checks all of the possible error codes, and 
+        also checks that a valid request receives a 201 response with a 
+        location header that leads into the newly created resource.
+        """
+        
+        valid = _get_throw_json()
+        """
+        # test with valid and see that it exists afterward
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        body = json.loads(client.get(self.RESOURCE_URL).data)
+        id = body["items"][-1]["id"]
+        assert resp.status_code == 201
+        assert resp.headers["Location"].endswith(self.RESOURCE_URL + str(id) + "/")
+        resp = client.get(resp.headers["Location"])
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert body["id"] == 3
+        assert body["match_id"] == 1
+        assert body["player_id"] == 3
+        assert body["points"] == 8
+        """
+        # test with wrong content type(must be json)
+        resp = client.post(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+        
+        # remove title field for 400
+        valid.pop("points")
+        resp = client.post(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+        
+class TestThrowItem(object):
+    
+    RESOURCE_URL = "/api/throws/1/"
+    INVALID_URL = "/api/throws/6/"
+    MODIFIED_URL = "/api/throws/2/"
+    
+    def test_get(self, client):
+        """
+        Tests the GET method. Checks that the response status code is 200, and
+        then checks that all of the expected attributes and controls are
+        present, and the controls work. Also checks that all of the items from
+        the DB popluation are present, and their controls.
+        """
+        
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        assert body["id"] == 1
+        assert body["match_id"] == 1
+        assert body["player_id"] == 1
+        assert body["points"] == 2
+        _check_namespace(client, body)
+        _check_control_get_method("profile", client, body)
+        _check_control_get_method("collection", client, body)
+        #_check_control_put_method_throw("edit", client, body)
+        _check_control_delete_method("kyykka:delete", client, body)
+        resp = client.get(self.INVALID_URL)
+        assert resp.status_code == 404
+    
+    def test_put(self, client):
+        """
+        Tests the PUT method. Checks all of the possible error codes, and also
+        checks that a valid request receives a 204 response. Also tests that
+        when name is changed, the match can be found from a its new URI. 
+        """
+        valid = _get_throw_json()
+        
+        # test with wrong content type
+        resp = client.put(self.RESOURCE_URL, data=json.dumps(valid))
+        assert resp.status_code == 415
+        
+        resp = client.put(self.INVALID_URL, json=valid)
+        assert resp.status_code == 404
+        
+        # test with another id
+        valid["id"] = 2
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 409
+        """ 
+        # test with valid (only change id)
+        valid["id"] = 1
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 204
+        """
+        # remove field for 400
+        valid.pop("points")
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        assert resp.status_code == 400
+        
+        valid = _get_throw_json()
+        resp = client.put(self.RESOURCE_URL, json=valid)
+        resp = client.get(self.MODIFIED_URL)
+        assert resp.status_code == 200
+        body = json.loads(resp.data)
+        print(valid["match_id"])
+        assert body["match_id"] == valid["match_id"]
+            
+    def test_delete(self, client):
+        """
+        Tests the DELETE method. Checks that a valid request reveives 204
+        response and that trying to GET the match afterwards results in 404.
+        Also checks that trying to delete a match that doesn't exist results
+        in 404.
+        """
+    
+        resp = client.delete(self.RESOURCE_URL)
+        assert resp.status_code == 204
+        resp = client.get(self.RESOURCE_URL)
+        assert resp.status_code == 404
+        resp = client.delete(self.INVALID_URL)
+        assert resp.status_code == 404
+    
