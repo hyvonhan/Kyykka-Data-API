@@ -47,13 +47,9 @@ class GameBuilder(MasonBuilder):
     def match_schema():
         schema = {
             "type": "object",
-            "required": ["id","team1", "team2", "date", "team1_points", "team2_points"]
+            "required": ["team1", "team2", "date", "team1_points", "team2_points"]
         }
         props = schema["properties"] = {}
-        props ["id"] = {
-            "description": "ID of match",
-            "type": "number"
-        }
         props ["team1"] = {
             "description": "Name of team1",
             "type": "string"
@@ -259,7 +255,7 @@ class MatchCollection (Resource):
         body["items"] = []
         for db_matchid in Match.query.all():
             item = GameBuilder(
-                id=db_matchid.id,
+                #id=db_matchid.id,
                 team1=db_matchid.team1, 
                 team2=db_matchid.team2,
                 date=db_matchid.date, #added date. seems to work now
@@ -285,7 +281,7 @@ class MatchCollection (Resource):
             return create_error_response(400, "Invalid JSON document", str(e))
 
         new_match = Match(
-            id=request.json["id"],
+            #id=request.json["id"],
             team1=request.json["team1"],
             team2=request.json["team2"],
             date=request.json["date"],
@@ -297,9 +293,9 @@ class MatchCollection (Resource):
             db.session.add(new_match)
             db.session.commit()
         except IntegrityError:
-            return create_error_response(409, "Already exists", "Match with id '{}' already exists".format(request.json["id"]))
+            return create_error_response(409, "Already exists", "Match already inserted")
 
-        return Response(status=201, headers={"Location": api.url_for(MatchItem, id=request.json["id"])})
+        return Response(status=201, headers={"Location": api.url_for(MatchItem, id=new_match.id)})
 
 class MatchItem (Resource):
     """
@@ -349,7 +345,7 @@ class MatchItem (Resource):
         except ValidationError as e:
             return create_error_response(400, "Invalid JSON document", str(e))
 
-        db_matchid.id = request.json["id"]
+        #db_matchid.id = request.json["id"]
         db_matchid.team1 = request.json["team1"]
         db_matchid.team2 = request.json["team2"]
         db_matchid.date = request.json["date"]
@@ -632,3 +628,6 @@ def send_link_relations():
 @app.route("/profiles/<profile>/")
 def send_profile(profile):
     return "you requests {} profile".format(profile)
+@app.route("/admin/")
+def admin_site():
+    return app.send_static_file("html/admin.html")

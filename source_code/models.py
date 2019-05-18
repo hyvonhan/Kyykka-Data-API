@@ -21,6 +21,7 @@ class Match(db.Model):
     date = db.Column(db.String(64), nullable = True)  #muista muuttaa falseksi
     team1_points = db.Column(db.Integer, nullable = True) #muista muuttaa falseksi
     team2_points = db.Column(db.Integer, nullable = True) #muista muuttaa falseksi
+    db.UniqueConstraint('team1', 'team2', 'date', name="date_match_constraint")
 
     matches_throws = db.relationship("Throw", back_populates="current_match")
 
