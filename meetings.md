@@ -85,6 +85,11 @@ Firstly our assistant informed that we need to correct our Uniform interface tab
 ### Minutes
 *Summary of what was discussed during the meeting*
 
+At the start of the meeting, we discussed about the resource test code of the API. It was not completely finished by the time of the meeting, so we agreed that our group will present the test code at the next meeting. Rest of the meeting we discussed about our API.
+First, we discussed about the fact that our comments were somewhat lacking and some of them where placed wrongly in the code. This needed some fixing. There were some problems and uncertainties about, how the id works in our code. We were advised to modify the code so, that the id´s are removed from the Match and Throw Collections. This is done, because id is generated automatically by the database and is not needed in schemas or other parts. We were also advised to update the models from the perspective of delete and update. We should consider what happens when a match is removed from the database. 
+Otherwise our code seemed to be fine and we were given a “permission” to start to build our client for the project.
+
+
 ### Action points
 *List here the actions points discussed with assistants*
 
