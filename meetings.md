@@ -82,7 +82,7 @@ Firstly our assistant informed that we need to correct our Uniform interface tab
 * **ASSISTANTS: Mika Oja**
 * **GRADE:** *To be filled by course staff*
 
-### Minutes
+### 30 Minutes
 *Summary of what was discussed during the meeting*
 
 At the start of the meeting, we discussed about the resource test code of the API. It was not completely finished by the time of the meeting, so we agreed that our group will present the test code at the next meeting. Rest of the meeting we discussed about our API.
@@ -95,7 +95,7 @@ Otherwise our code seemed to be fine and we were given a “permission” to sta
 
 * Write the test code for API
 * Comment your code and replace the comments to right place DONE
-* Remove ID from MatchCollection and ThrowCollection. 
+* Remove ID from MatchCollection and ThrowCollection. DONE
    * Remove ID also from schema
 * Models, what happens when DELETE DONE
 
@@ -119,16 +119,22 @@ Otherwise our code seemed to be fine and we were given a “permission” to sta
 
 
 ## Final meeting
-* **DATE:**
-* **ASSISTANTS:**
+* **DATE: 16.5.2019**
+* **ASSISTANTS: Ivan Sanchez Milara**
 * **GRADE:** *To be filled by course staff*
 
-### Minutes
+### 40+ Minutes
 *Summary of what was discussed during the meeting*
+
+During this meeting we presented our resource test code as agreed in the past meeting. Resource testing code had 94% coverage and to earn 100% coverage, following this should be done. We should correctly test the ThrowItem error 409 in PUT request and correctly test the ThrowCollection error 409 in POST request. Otherwise the test code was okay and needed no further fixing.
+Next we presented our client, which still had few problems. We had only implemented the Get request, but in order to pass the client part of the course, we need to implement all requests: GET, POST, PUT and DELETE. We had tried to implement the POST function which was almost done by the meeting. After some intense advice, the POST function started to work during the meeting. This means that after the meeting, we still need to implement PUT and DELETE. In addition to this, we should fill the final evaluation into the wiki page.
 
 ### Action points
 *List here the actions points discussed with assistants*
 
+* Fix tests for errors 409 in ThrowCollection and ThrowItem
+* Implement PUT and DELETE in the client DONE
+* Fill Final evalution in wiki
 
 ### Comments from staff
 *ONLY USED BY COURSE STAFF: Additional comments from the course staff*
