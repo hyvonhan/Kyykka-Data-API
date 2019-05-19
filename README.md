@@ -96,3 +96,7 @@ Details about tests can be found at the comments inside db_test.py.
 # Instruction on how to run the tests of the resources.
 Pytest is also used to test the resources. To test the resources, copy the app.py, models.py, utils.py from the source_code folder to your computer. Next, copy the resource_test.py from the test file to your computer. Put all the files into a single folder of your choosing. Then go to the command prompt and locate the folder you just created and type ```pytest```.
 Details about tests can be found at the comments inside resource_test.py.
+
+# Instruction on how to use the provided client.
+We have a small GUI for the API. It runs on the web-browser and it's based on HTML, CSS, JavaScript and jQuery. To use the client just clone the whole project from github and put the database test file test.db from db folder into the source code_folder. After this navigate to the source_code folder with the command prompt and type ```flask run```. After this open your web-browser and point the browser to this url: ```http://localhost:5000/admin/```. Here you can insert new matches, update them or delete them. The client also shows the match collection in the main view. You can see example pictures in our wiki DL5. RESTful API client, Client implementation.
+
